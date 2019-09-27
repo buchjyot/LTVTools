@@ -88,7 +88,7 @@ for i = 1:length(Tf)
         RiccatiSolP = infofh.Upper.P;
         t = RiccatiSolP.Time;
         
-        figure(1);clf;
+        figure;clf;
         plot(t,RiccatiSolP,'Linewidth',2);hold on;
         T = RiccatiSolP.Time(end);
         phi = sqrt(gfh(i)^-2 - 1); % Analytical solution
@@ -103,12 +103,12 @@ for i = 1:length(Tf)
         disp(gammaAnal);
         
         % Relative Error of Riccati Sol
-        figure(2);clf;
+        figure;clf;
         plot(RiccatiSolP.Time,(RiccatiSolP - RiccatiSolPAnal)/RiccatiSolPAnal,'Linewidth',2);
         title('Relative Error of Riccati Sol');
         
         % Check DownSampling near 0
-        figure(3);clf;
+        figure;clf;
         plot(Kfh.Time,squeeze( Kfh.Data(1,1,:) ),'b',RiccatiSolP.Time,...
             -RiccatiSolP.Data(:),'r--','Linewidth',2);
         title('Check DownSampling near 0');
@@ -119,7 +119,7 @@ end
 %% Analysis
 % Plot Data
 if isequal(NE,0)
-    figure(5);clf;
+    figure;clf;
     plot(Tf,gih*ones(size(Tf)),'r--','LineWidth',3);
     hold on;grid on;
     plot(Tf,gfh,'b-*','LineWidth',3,'MarkerSize',10);

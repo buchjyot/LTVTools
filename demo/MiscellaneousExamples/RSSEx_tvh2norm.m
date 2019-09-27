@@ -21,7 +21,7 @@ fprintf(' Tf = Inf, Closed Loop H2 Norm = %.4f\n',h2nih);
 
 %% Plot
 if length(Tf) > 1
-    figure(1);clf;
+    figure;clf;
     plot(Tf,h2nih*ones(size(Tf)),'r--','LineWidth',3);hold on;box on;grid on;
     plot(Tf,h2nfh,'b*-','LineWidth',3,'MarkerSize',11);
     xlabel('Time Horizon (s)','FontSize',12);

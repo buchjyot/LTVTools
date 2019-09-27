@@ -45,15 +45,15 @@ P0 = zeros(2);
 
 % Plot covariances 
 % Figure 3.8 in the book
-figure(1);clf;
+figure;clf;
 tvplot(Pfh,'LineWidth',2);
 title('Error covariance terms for a harmonic oscillator.')
 legend('P1(t)','P12(t)=P21(t)','P22(t)');
 grid on;
 
 % Plot kalman gains
-figure(2);clf;
-plot(Lfh,'LineWidth',2);
+figure;clf;
+tvplot(Lfh,'LineWidth',2);
 title('Kalman Gains');
 legend('L1','L21');
 grid on;

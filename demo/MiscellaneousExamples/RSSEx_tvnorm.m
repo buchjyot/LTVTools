@@ -17,7 +17,7 @@ end
 %% Inf Horizon Results
 tvnih = hinfnorm(P);
 fprintf('Tf=Inf, Gain=%.4f\n',tvnih)
-figure(1);clf;hold on;box on;grid on;
+figure;clf;hold on;box on;grid on;
 plot(Tf,tvnfh,'-*b','LineWidth',2.5,'MarkerSize',8);
 plot(Tf,tvnih*ones(size(Tf)),'--r','LineWidth',2.5);
 ylabel('Performance Metric','FontSize',14);

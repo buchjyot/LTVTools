@@ -91,7 +91,7 @@ fprintf('\n');
 gAll = [AllResults.gfinal];
 
 if numel(Tall)>1
-    figure(1);
+    figure;
     ph1a = plot(Tall,gAll,'b',Tall,gAll,'bx',Tall([1 end]),gih*[1 1],'r--');
     %hold on;
     %ph1b = plot(Tall,gT,'r',Tall,gT,'rx',Tall(end),Ginf,'ro');
@@ -101,7 +101,7 @@ if numel(Tall)>1
     ylabel('L_2 Gain');
     grid on;
     
-    figure(2)
+    figure
     plot(Tall,RobTime./Nall*2,'b',Tall,RobTime./Nall*2,'bx');
     hold on;
     plot(Tall,NomTime,'r',Tall,NomTime,'rx');

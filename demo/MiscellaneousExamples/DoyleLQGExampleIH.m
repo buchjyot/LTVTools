@@ -79,7 +79,7 @@ dm
 % negative feedback loop.
 L = G*-Clqg;
 
-figure(1)
+figure
 bode(G,'b',-Clqg,'r--',L,'g--');
 
 % Limiting controller as q=sig-->inf (?)
@@ -101,5 +101,5 @@ D = [0 0 0; 0 0 sqrt(R); Dw*sqrt(Qw) Dv*sqrt(Qv) Du];
 P = ss(A,Bh2,Ch2,D);
 [Kh2,CLh2,GAMh2,INFOh2] = h2syn(P,1,1);
 
-figure(2);
+figure;
 bode(Clqg,'b',Kh2,'r--')

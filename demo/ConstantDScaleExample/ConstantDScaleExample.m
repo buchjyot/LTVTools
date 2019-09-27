@@ -81,7 +81,7 @@ for i=1:Nd
     Jih(i) = norm( Dl*G*S*Dr, inf,1e-5);
 end
     
-figure(1); clf
+figure; clf
 plot(dscale,Jih,'b',dopt,1,'ro');
 xlabel('D-scale');
 ylabel('Scaled Gain');
@@ -113,7 +113,7 @@ for i=1:NT
 end
 
 % Plot results
-figure(2); clf
+figure; clf
 plot(Tdata,Jfh,'b',Tdata([1 end]),gopt*[1 1],'r--');
 xlabel('Finite Horizon, T');
 ylabel('Gain Bound');
@@ -173,7 +173,7 @@ end
 [Jmin,Jidx] = min(Jdfh(:,1));
 idx = find( dscale==dopt );
 
-figure(3); clf
+figure; clf
 plot(dscale,Jdfh,'b',dscale,Jdfh,'bx',...
     dscale,Jdih,'r--',dscale,Jdih,'rx',...
     dopt,gT,'co',dscale(idx),Jdih(idx),'ko');

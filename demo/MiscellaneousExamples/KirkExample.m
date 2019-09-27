@@ -33,13 +33,13 @@ sys = tvss(sys_ss);
 [Kfh,Pfh] = tvlqr(sys,Q,R,F,[T0 Tf]);
 
 %% Plot the data
-figure(1);clf;
+figure;clf;
 tvplot(Pfh,'LineWidth',2);grid on;
 legend('P11','P12','P21','P22','Location','best');
 title('Solution of Riccati Equation');
 
 % NOTE: The P plot should match with Page no. 218, Figure 5-9 (a)
-figure(2);clf;
+figure;clf;
 tvplot(Kfh,'LineWidth',2);grid on;
 legend('K1','K12','Location','best');
 title('State Feedback Gain Values');
@@ -59,7 +59,7 @@ U = -Kfh*Xeval;
 Udata = reshapedata(U);
 
 % Plot Page no. 218, Figure 5-9 (b)
-figure(3);clf;
+figure;clf;
 tvplot(X,'--r',U,'b','LineWidth',2); grid on;
 legend('X1*','X2*','U*');
 title('Optimal Control Input and State Trajectories');

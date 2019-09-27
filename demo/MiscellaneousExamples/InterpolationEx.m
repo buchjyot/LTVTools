@@ -49,7 +49,7 @@ AFlaIM = evalt(A,TGrid);
 warning('on','ltvtools:evalt:extrapolate');
 
 %% Plot
-figure(1);clf;grid on;hold on;box on;
+figure;clf;grid on;hold on;box on;
 plot(Tm.Time,Tm,'-k','LineWidth',1);
 plot(AFlaIM.Time,AFlaIM,'.-c','LineWidth',2.5);
 plot(ANeaIM.Time,ANeaIM,'.-g','LineWidth',2.5);
