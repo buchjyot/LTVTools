@@ -2,6 +2,9 @@
 % This file designs finite-horizon LQR and analyzes the nominal and robust
 % performance
 
+%% Load LTV model data
+load('twoLinkRobot_BuildLTVModel.mat');
+
 %% LQR Design
 % Finite-Horizon LQR State-Feedback Design
 Q = 100*diag([1 1 0.1 0.1]);
