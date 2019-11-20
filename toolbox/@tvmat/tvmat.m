@@ -422,7 +422,7 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                 Y = varargin{1};
                 [Y,I] = tvbinop(@min,X,Y,varargin{2:end});
             else
-                [Y,I] = tvunopfl(@min,X,varargin{:});
+                [Y,I] = tvunop(@min,X,varargin{:});
             end
         end
         
