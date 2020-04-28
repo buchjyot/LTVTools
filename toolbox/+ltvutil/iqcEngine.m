@@ -19,7 +19,7 @@ end
 
 %% Choose a default option for UserData
 if isempty(UserData)
-    warning('UserData is empty, using the default IQC');
+    warning('UserData is empty, using the default IQC.');
     UserData = [0,-10,1];
 end
 

@@ -30,7 +30,7 @@ Rc = D'*M11*D;
 Fc = zeros(Nx);
 W = chol(Rc);
 
-%% Call TVNORM Engine
+%% Solve Riccati Equation
 Tspan = flip(sort(Tspan));
 X = cdre(tvmat(A),B,Qc,Rc,Sc,[],Fc,Tspan,Opt);
 

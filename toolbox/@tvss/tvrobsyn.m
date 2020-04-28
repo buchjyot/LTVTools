@@ -116,7 +116,7 @@ try
         % Start Display
         if DispFlag
             fprintf(newline);
-            fprintf(' ===> DK Iteration #%d:\n',i);
+            fprintf(' ===> Iteration #%d:\n',i);
             fprintf(' ### Synthesis Step: \n');
         end
         
