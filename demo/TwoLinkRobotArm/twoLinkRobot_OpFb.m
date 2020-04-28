@@ -4,7 +4,6 @@
 
 %% Load LTV model data
 load('twoLinkRobot_BuildLTVModel.mat');
-load('twoLinkRobot_HinfDesign.mat','Delta');
 load('twoLinkRobot_SpecifyOptions.mat');
 
 %% Output-Feedback with Rate Estimates

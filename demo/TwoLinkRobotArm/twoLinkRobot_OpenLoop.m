@@ -4,7 +4,6 @@
 %% Load LTV model data
 load('twoLinkRobot_BuildLTVModel.mat');
 load('twoLinkRobot_SpecifyOptions.mat');
-load('twoLinkRobot_HinfDesign.mat','Delta','DelNorm');
 
 %% Nominal Open-Loop Analysis
 fprintf('==================================================\n');

@@ -11,10 +11,6 @@ NE = 2;
 % Number of measurement available for feedback
 Ny = 2;
 
-% Uncertain Channel Dimentions
-Nv = 1;
-Nw = 1;
-
 %% Signal Weights
 % Disturbance weight
 WdScl = 0.1;
@@ -70,20 +66,5 @@ Gunc = sysic;
 % Plant to be used for nominal synthesis
 Gnom = lft(0,Gunc);
 
-% Initial conditions for estimator
-xhat0 = [0;0;0;0];
-
-%% Additional Options
-% Specify the size of the worst-case disturbance for simulation and
-% analysis, this variable is used by multiple files
-dScl = 0.5;
-
-% Uncertainty Norm
-DelNorm = 0.8;
-
-% Uncertainty Delta
-Delta = udyn('Delta',[Nw Nv],'UserData',[0,-10,1]); % M11 > 0 Constrint
-
 %% Save Data
-save(mfilename,'Gsfb','Gnom','Gunc','xhat0','Wd','Wn','Wu','Wv','Ww','WE',...
-    'NE','Ny','Nv','Nw','dScl','DelNorm','Delta');
+save(mfilename,'Gsfb','Gnom','Gunc','xhat0','Wd','Wn','Wu','Wv','Ww','WE','NE','Ny');

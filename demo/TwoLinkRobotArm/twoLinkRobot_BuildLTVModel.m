@@ -151,6 +151,34 @@ G.InterpolationMethod = 'Linear';
 Nx = size(A,1);
 Nu = size(B,2);
 
+% Uncertain Channel Dimentions
+Nv = 1;
+Nw = 1;
+
+%% Additional Options
+% Specify the size of the worst-case disturbance for simulation and
+% analysis, this variable is used by multiple files
+dScl = 0.5;
+
+% Uncertainty Norm
+DelNorm = 0.8;
+
+% Uncertainty Delta
+Delta = udyn('Delta',[Nw Nv],'UserData',[0,-10,1]); % M11 > 0 Constrint
+
+%% Settings for Simulink Model
+VSS_INPUT_UNCERTAINTY_NONE            = Simulink.Variant('VSS_INPUT_UNCERTAINTY_MODE==0');
+VSS_INPUT_UNCERTAINTY_SECOND_CHANNEL  = Simulink.Variant('VSS_INPUT_UNCERTAINTY_MODE==1');
+
+% Set Variant to Nominal, i.e. No Uncertainty
+VSS_INPUT_UNCERTAINTY_MODE = 0;
+
+% Initial conditions for estimator
+xhat0 = [0;0;0;0];
+
+% Default settings for noise
+NoisePowerSim = [0;0];
+
 % Turn extrapolation warning back to on
 warning('on','ltvtools:evalt:extrapolate');
 

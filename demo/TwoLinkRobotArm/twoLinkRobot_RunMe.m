@@ -24,7 +24,7 @@ for sequence = 8
             twoLinkRobot_LQR
             
         case 2
-            % Degradation of Robustness on Finite Horizon [Unpublished]
+            % Degradation of Robustness on Finite Horizon
             twoLinkRobot_OpFb
             
             % Plot Results

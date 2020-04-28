@@ -74,19 +74,5 @@ dWc2s = dScl*dWc2{id2}/tvnorm(dWc2{id2});
 XCLn = tvlsim(lft(Deltawc1,CLnA),dWc1s,tvopt);
 XCLr = tvlsim(lft(Deltawc2,CLrA),-dWc2s,tvopt);
 
-%% Nonlinear Simulations with Worst-Case Uncertainty and Worst-Case Disturbance
-% Setup
-% NoisePowerSim = [0;0];
-% model = 'TwoLinkRobotCL_OpFb';
-% load_system(model);
-
-% Use Nominal Controller
-% d = dWc1s;
-% KOpFb = Knom;
-
-% Use Robust Controller
-% d = dWc2s;
-% KOpFb = Krob;
-
 %% Save Data
 save(mfilename,'Deltawc1','Deltawc2','wcgUB1','wcgUB2','wcgLB1','wcgLB2','XCLn','XCLr','dWc1s','dWc2s');

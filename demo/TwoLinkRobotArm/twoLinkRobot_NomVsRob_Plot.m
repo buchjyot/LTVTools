@@ -3,7 +3,7 @@
 % robust euclidean gains
 load('twoLinkRobot_BuildLTVModel.mat');
 load('twoLinkRobot_SpecifyOptions.mat');
-load('twoLinkRobot_HinfDesign.mat','dScl','DelNorm');
+load('twoLinkRobot_HinfDesign.mat');
 clear alpha
 
 % Define center as the final position of the tip of the arm

@@ -5,7 +5,6 @@
 %% Load LTV model data
 load('twoLinkRobot_BuildLTVModel.mat');
 load('twoLinkRobot_SpecifyOptions.mat');
-load('twoLinkRobot_HinfDesign.mat','Delta','DelNorm');
 
 %% LQR Design
 % Finite-Horizon LQR State-Feedback Design
@@ -62,17 +61,17 @@ subplot(311)
 tvplot(dCL(1),'b',dCL(2),'r--');
 ylabel('d (Nm)');
 legend('d1','d2');
-title(sprintf('Simulations with ||dCL||=%.3f',dNorm));
+title(sprintf('Simulations with ||dCL||=%.3f',dNorm));grid on;box on;
 
 subplot(312)
 tvplot(etabar(1),'k-.', etaNL(1),'r', etaLin(1),'b--');
 ylabel('\theta_1 (rad)');
-legend('Trim','NL','Lin');
+legend('Trim','NL','Lin');grid on;box on;
 
 subplot(313)
 tvplot(etabar(2),'k-.', etaNL(2),'r', etaLin(2),'b--');
 xlabel('Time (sec)');
-ylabel('\theta_2 (rad)');
+ylabel('\theta_2 (rad)');grid on;box on;
 
 figure;clf;
 plot(etabar(1),etabar(2),'k-.', etaNL(1),etaNL(2),'r', ...
@@ -80,7 +79,7 @@ plot(etabar(1),etabar(2),'k-.', etaNL(1),etaNL(2),'r', ...
 xlabel('\theta_1 (rad)');
 ylabel('\theta_2 (rad)');
 legend('Trim','NL','Lin');
-title(sprintf('Simulations with ||dCL|| = %.3f',dNorm))
+title(sprintf('Simulations with ||dCL|| = %.3f',dNorm));grid on;box on;
 
 %% Robust Closed-Loop Analysis
 fprintf('=================================================\n');
@@ -227,6 +226,9 @@ grid on;
 xlabel('x (m)'); ylabel('y (m)');
 title(['Closed-Loop with ||d|| <= ' num2str(dNorm)]);
 hold off;
+
+%% Save Data
+save(mfilename,'Klqr','gCLNom','dCL','DeltaBad','gCL','wcinfoCL');
 
 %% Plot Nominal Trajectory
 figure; clf; hold on;
