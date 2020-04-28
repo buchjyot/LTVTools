@@ -1,13 +1,9 @@
-%% Setup
-
-% Run Problem Data
-TwoStateEx
-
 %% Specify sequence that you want to run
 sequence = 1;
 switch sequence
     case 1
         % Reproduce ACC paper results
+        TwoStateEx
         TwoStateEx_NominalSynthesis
         TwoStateEx_RobustSynthesis
         TwoStateEx_UncSweep

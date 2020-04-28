@@ -24,10 +24,10 @@ parfor i = 1:length(UL)
         [wcg,info2{i}] = tvnorm(lft(0,CLr),NE,tvnopt);wcgain2(i) = wcg(2);
     else
         tvwcopt1.ULevel = UL(i);
-        [wcgain1(i),info1{i}] = tvwcgain(CLn,NE,tvwcopt1);
-        [wcgain2(i),info2{i}] = tvwcgain(CLr,NE,tvwcopt1);
+        [wcgain1(i),info1{i}] = tvwcgain(CLn,Delta,NE,tvwcopt1);
+        [wcgain2(i),info2{i}] = tvwcgain(CLr,Delta,NE,tvwcopt1);
     end
 end
 
 %% Save Data
-save(mfilename,'wcgain1','wcgain2','UL','beta');
+save(mfilename,'wcgain1','wcgain2','UL');

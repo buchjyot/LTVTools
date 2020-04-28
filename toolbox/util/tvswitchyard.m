@@ -29,7 +29,7 @@ for i=1:nin
         vi = tvss(vi);
     elseif isa(vi,'umat') || isa(vi,'ureal') || isa(vi,'ucomplex') || isa(vi,'ucomplexm')
         vi = tvumat(vi);
-    elseif isa(vi,'uss') || isa(vi,'ultidyn')
+    elseif isa(vi,'uss') || isa(vi,'ultidyn') || isa(vi,'udyn')
         vi = tvuss(vi);
     end
      
@@ -73,7 +73,7 @@ if ~isTimeInvariant
             % Lift Constant to TVMAT/TVSS
             Data = varargout{i}.Data;
             nd = ndims(Data)-2;
-            Data2 = repmat(Data,[1 1 ones(1,nd) numel(Time)]);
+            Data2 = repmat(Data,[1 1 ones(1,nd) numel(Time)]);            
             if isa(Data,'double') || isa(Data,'logical')
                 varargout{i} = tvmat(Data2,Time,IM);
             elseif isa(Data,'ss') || isa(Data,'tf') || isa(Data,'zpk')

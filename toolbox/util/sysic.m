@@ -26,17 +26,17 @@ Osn = evalin('caller',['exist(''outputvar'',''var'');']);
 Csn = evalin('caller',['exist(''cleanupsysic'',''var'');']);
 Ssn = evalin('caller',['exist(''sysoutname'',''var'');']);
 if ~Esn
-   ctrlMsgUtils.error('Robust:sysic:MissingWSVariable','systemnames')
+   ctrlMsgUtils.error('Robust:umodel:MissingWSVariable','systemnames')
 else
    systemnames = evalin('caller','systemnames;');
 end
 if ~Isn
-   ctrlMsgUtils.error('Robust:sysic:MissingWSVariable','inputvar')
+   ctrlMsgUtils.error('Robust:umodel:MissingWSVariable','inputvar')
 else
    inputvar = evalin('caller','inputvar;');
 end
 if ~Osn
-   ctrlMsgUtils.error('Robust:sysic:MissingWSVariable','outputvar')
+   ctrlMsgUtils.error('Robust:umodel:MissingWSVariable','outputvar')
 else
    outputvar = evalin('caller','outputvar;');
 end
@@ -53,13 +53,13 @@ end
 
 [numsys,sysnames,err] = LOCALnamstuff(systemnames);
 if err == 1
-   ctrlMsgUtils.error('Robust:sysic:CheckWSVariable','SYSTEMNAMES')
+   ctrlMsgUtils.error('Robust:umodel:CheckWSVariable','SYSTEMNAMES')
 end
 sysvals = cell(numsys,1);
 
 [numxinp,xndf,xipnt,xinames,err,inpnames] = LOCALinpstuff(inputvar);
 if err == 1
-   ctrlMsgUtils.error('Robust:sysic:CheckWSVariable','INPUTVAR')
+   ctrlMsgUtils.error('Robust:umodel:CheckWSVariable','INPUTVAR')
 end
 
 flagvec = zeros(numsys,1);
@@ -70,7 +70,7 @@ sysdata = zeros(3,numsys+xndf);
 for i=1:numsys
    Ssn = evalin('caller',['exist(''' sysnames{i} ''',''var'');']);
    if Ssn ~= 1
-      ctrlMsgUtils.error('Robust:sysic:SystemNotFound',sysnames{i});
+      ctrlMsgUtils.error('Robust:umodel:SystemNotFound',sysnames{i});
    end
    tmp = evalin('caller',sysnames{i});
    [sysvals{i},flagvec(i)] = LOCALmat2ss(tmp);
@@ -112,7 +112,7 @@ numsysout = allrows - numxinp;
 numout = 0;
 [ard,arl,er] = LOCALpass1(outputvar);
 if er ~= 0
-   ctrlMsgUtils.error('Robust:sysic:SyntaxProblem','OUTPUTVAR');
+   ctrlMsgUtils.error('Robust:umodel:SyntaxProblem','OUTPUTVAR');
 end
 outpnames = cell(length(arl),1);
 numwiththis = zeros(size(ard,1),1);
@@ -123,22 +123,22 @@ for i=1:length(arl)
       numwiththis(i) = length(eval(['[' od(1,:) ']']));
    catch
       % This error was originally displayed slightly differently
-      ctrlMsgUtils.error('Robust:sysic:SyntaxProblem','OUTPUTVAR');
+      ctrlMsgUtils.error('Robust:umodel:SyntaxProblem','OUTPUTVAR');
    end
    if er ~= 0
-      ctrlMsgUtils.error('Robust:sysic:SyntaxProblem','OUTPUTVAR');
+      ctrlMsgUtils.error('Robust:umodel:SyntaxProblem','OUTPUTVAR');
    end
    sz = 0;
    for j = 1:length(odl)
       [out,er] = LOCALpass3(j,od,odl);
       if er ~= 0
-         ctrlMsgUtils.error('Robust:sysic:InvalidCommaColon');
+         ctrlMsgUtils.error('Robust:umodel:InvalidCommaColon');
       end
       if sz == 0
          sz = length(out);
       else
          if sz ~= length(out)
-            ctrlMsgUtils.error('Robust:sysic:InconsistentSignalNumber',['''' ard(i,1:arl(i)) '''']);
+            ctrlMsgUtils.error('Robust:umodel:InconsistentSignalNumber',['''' ard(i,1:arl(i)) '''']);
          end
       end
    end
@@ -163,7 +163,7 @@ for k=1:numsys+1
       Vname = ['input_to_' sysnames{k}];
       IVsn = evalin('caller',['exist(''' Vname ''',''var'');']);
       if IVsn ~= 1
-         ctrlMsgUtils.message('Robust:sysic:NoInputs',sysnames{k});
+         ctrlMsgUtils.message('Robust:umodel:NoInputs',sysnames{k});
       else
          Vk = evalin('caller',[Vname ';']);
       end
@@ -175,16 +175,16 @@ for k=1:numsys+1
    end
    [ard,arl,er] = LOCALpass1(Vk);
    if er>0
-      initMess =  ctrlMsgUtils.message('Robust:sysic:CheckExp',[Vname '= ''' Vk '''']);
+      initMess =  ctrlMsgUtils.message('Robust:umodel:CheckExp',[Vname '= ''' Vk '''']);
       switch er
          case 1
-            finalMess = ctrlMsgUtils.message('Robust:sysic:MissingBrackets');
+            finalMess = ctrlMsgUtils.message('Robust:umodel:MissingBrackets');
          case 2
-            finalMess = ctrlMsgUtils.message('Robust:sysic:InconsistentParen');
+            finalMess = ctrlMsgUtils.message('Robust:umodel:InconsistentParen');
          case {3,4}
-            finalMess = ctrlMsgUtils.message('Robust:sysic:ParenWrong');
+            finalMess = ctrlMsgUtils.message('Robust:umodel:ParenWrong');
          case 5
-            finalMess = ctrlMsgUtils.message('Robust:sysic:BracketsInParen');
+            finalMess = ctrlMsgUtils.message('Robust:umodel:BracketsInParen');
       end
       error([initMess ' ' finalMess]);
    end
@@ -195,18 +195,18 @@ for k=1:numsys+1
       %     different components (also have constant scaling factors)
       [od,odl,fsys,gains,er] =  LOCALpass2(i,ard,arl,names,sysdata);
       if er>0
-         initMess =  ctrlMsgUtils.message('Robust:sysic:CheckExp',[Vname '= ''' Vk '''']);
+         initMess =  ctrlMsgUtils.message('Robust:umodel:CheckExp',[Vname '= ''' Vk '''']);
          switch er
             case 1
-               finalMess = ctrlMsgUtils.message('Robust:sysic:TooManySM');
+               finalMess = ctrlMsgUtils.message('Robust:umodel:TooManySM');
             case 2
-               finalMess = ctrlMsgUtils.message('Robust:sysic:ImproperParen');
+               finalMess = ctrlMsgUtils.message('Robust:umodel:ImproperParen');
             case 3
-               finalMess = ctrlMsgUtils.message('Robust:sysic:ImbalanceParen');
+               finalMess = ctrlMsgUtils.message('Robust:umodel:ImbalanceParen');
             case 4
-               finalMess = ctrlMsgUtils.message('Robust:sysic:WrongSM');
+               finalMess = ctrlMsgUtils.message('Robust:umodel:WrongSM');
             case 5
-               finalMess = ctrlMsgUtils.message('Robust:sysic:UnknownSystem');
+               finalMess = ctrlMsgUtils.message('Robust:umodel:UnknownSystem');
          end
          error([initMess ' ' finalMess]);
       else
@@ -216,21 +216,21 @@ for k=1:numsys+1
             if szout == 0
                szout = length(out);
             elseif szout ~= length(out)
-               initMess =  ctrlMsgUtils.message('Robust:sysic:CheckExp',[Vname '= ''' Vk '''']);
-               finalMess = ctrlMsgUtils.message('Robust:sysic:BadSignalCombo');
+               initMess =  ctrlMsgUtils.message('Robust:umodel:CheckExp',[Vname '= ''' Vk '''']);
+               finalMess = ctrlMsgUtils.message('Robust:umodel:BadSignalCombo');
                error([initMess ' ' finalMess]);
             end
             if er == 1
-               initMess =  ctrlMsgUtils.message('Robust:sysic:CheckExp',[Vname '= ''' Vk '''']);
-               finalMess = ctrlMsgUtils.message('Robust:sysic:TwoCommas');
+               initMess =  ctrlMsgUtils.message('Robust:umodel:CheckExp',[Vname '= ''' Vk '''']);
+               finalMess = ctrlMsgUtils.message('Robust:umodel:TwoCommas');
                error([initMess ' ' finalMess]);
             elseif er == 2
-               initMess =  ctrlMsgUtils.message('Robust:sysic:CheckExp',[Vname '= ''' Vk '''']);
-               finalMess = ctrlMsgUtils.message('Robust:sysic:TwoColons');
+               initMess =  ctrlMsgUtils.message('Robust:umodel:CheckExp',[Vname '= ''' Vk '''']);
+               finalMess = ctrlMsgUtils.message('Robust:umodel:TwoColons');
                error([initMess ' ' finalMess]);
             else
                if max(out)>sysdata(2,fsys(j))
-                  ctrlMsgUtils.error('Robust:sysic:IndexExceeds',upper(Vname));
+                  ctrlMsgUtils.error('Robust:umodel:IndexExceeds',upper(Vname));
                end
                sysloc = outpoint(fsys(j));
                ff = LOCALgaino(out,gains(j),ff,location,sysloc);
@@ -242,8 +242,8 @@ for k=1:numsys+1
    end
    if k <= numsys
       if sysdata(3,k) ~= szin
-         initMess =  ctrlMsgUtils.message('Robust:sysic:CheckExp',[Vname '= ''' Vk '''']);
-         finalMess = ctrlMsgUtils.message('Robust:sysic:WrongInputNumber');
+         initMess =  ctrlMsgUtils.message('Robust:umodel:CheckExp',[Vname '= ''' Vk '''']);
+         finalMess = ctrlMsgUtils.message('Robust:umodel:WrongInputNumber');
          error([initMess ' ' finalMess]);
       end
    end
@@ -264,10 +264,10 @@ else
 end
   
 try
-   if isa(ic,'lti') || isa(ic,'dynamicsys')
+   if isa(ic,'lti') || isa(ic,'DynamicSystem')
       ic.InputName = inpnames;
       ic.OutputName = outpnames;
-      if isa(para,'lti') || isa(para,'dynamicsys')
+      if isa(para,'lti') || isa(para,'DynamicSystem')
          for i=1:numout
             tmp = find(outputMat(i,:));
             if length(tmp)==1 && outputMat(i,tmp)==1
@@ -287,7 +287,7 @@ try
       end
    end
 catch
-   ctrlMsgUtils.warning('Robust:sysic:/UnassignedIONames');
+   ctrlMsgUtils.warning('Robust:umodel:/UnassignedIONames');
 end
 
 
@@ -321,10 +321,10 @@ err = 0;
 startp = 0;
 inppoint = zeros(0,2); % from []
 names = cell(0,1); % from []
-tmpln = length(inputvar);
-iloc = find(inputvar ~= ']' & inputvar ~= '[');
+%tmpln = length(inputvar);
+iloc = inputvar ~= ']' & inputvar ~= '[';
 tmp = inputvar(iloc);
-tmp = tmp(find(tmp ~= ' '));
+tmp = tmp(tmp ~= ' ');
 semic = [0 find(tmp == ';') length(tmp)+1];
 numdiffinp = length(semic) - 1;
 numxinp = 0;
@@ -385,7 +385,7 @@ end
 function [numsys,names,err] = LOCALnamstuff(systemnames)
 %XXX Should be some error handling at this point
 err = 0;
-iloc = find(systemnames ~= ']' & systemnames ~= '[');
+iloc = systemnames ~= ']' & systemnames ~= '[';
 tmp = [' ' systemnames(iloc) ' '];
 blks = find(tmp == ' ');
 blksd = diff(blks);
@@ -413,14 +413,14 @@ function [arraydata,arraylen,err] = LOCALpass1(var)
 %
 %            err = 0 (integer, signifies all is OK)
 err = 0; arraydata = []; arraylen = 0;
-var = var(find(var~=' '));
-if var(1) ~= '[' | var(length(var)) ~= ']'
+var = var(var~=' ');
+if var(1) ~= '[' || var(length(var)) ~= ']'
    err = 1;
    arraydata = [];
    arraylen = 0;
 else
    var = var(2:length(var)-1);
-   if length(find(var=='[' | var==']')) > 0
+   if any(var=='[' | var==']') 
       err = 5;
       return
    end
@@ -437,13 +437,11 @@ else
          go = 1;
          j = 1;
          while go == 1
-            if length(scol) > 0
-               if length(find(scol(j)>rparens)) ~= length(find(scol(j)>lparens))
-                  go = 0;
-                  err = 4;
-                  return
-               end
-            end
+             if ~isempty(scol) && length(find(scol(j)>rparens)) ~= length(find(scol(j)>lparens))
+                 go = 0;
+                 err = 4;
+                 return
+             end            
             j = j+1;
             if j > length(scol)
                go = 0;
@@ -453,7 +451,7 @@ else
                places = [0 scol length(var)+1];
                for i=1:length(scol)+1
                   data = var(places(i)+1:places(i+1)-1);
-                  if data(1) ~= '+' & data(1) ~= '-'
+                  if data(1) ~= '+' && data(1) ~= '-'
                      data = ['+' data];
                   end
                   arraylen = [arraylen ; length(data) ];
@@ -554,22 +552,16 @@ err = 0;
 out = [];
 commas = find(var==',');
 commas = [0 commas length(var)+1];
-if length(find(diff(commas)==1)) > 0
+if any(diff(commas)==1)
    err = 1;
 else
    for jj=1:length(commas)-1
       chunk = var(commas(jj)+1:commas(jj+1)-1);
       colons = find(chunk==':');
       if isempty(colons)
-         exp = ['value =' chunk ';'];
-         eval(exp);
-         out = [out ; value];
+         out = [out ; eval(chunk)];
       elseif length(colons) == 1
-         exp = ['schtart = ' chunk(1:colons(1)-1) ';'];
-         eval(exp);
-         exp = ['schtop = ' chunk(colons(1)+1:length(chunk)) ';'];
-         eval(exp)
-         tmp = schtart:schtop;
+         tmp = eval(chunk(1:colons(1)-1)):eval(chunk(colons(1)+1:length(chunk)));
          out = [out ; tmp'];
       else
          err = 2;
@@ -578,7 +570,7 @@ else
 end
 
 function [iloc,err] = LOCALfindsys(names,sysname)
-iloc = strmatch(sysname,names,'exact');
+iloc = find(strcmp(sysname,names));
 err = 0;
 if length(iloc)~=1
    err = 1;
@@ -608,14 +600,14 @@ switch class(a)
       b = mat2lti(a);
       flag = ~isequal(a,b);
    otherwise
-      ctrlMsgUtils.error('Robust:sysic:IllegalSystemClass',class(a));
+      ctrlMsgUtils.error('Robust:umodel:IllegalSystemClass',class(a));
 end
 
 function out = LOCALchstr(in)
 for i=0:9
    if ~isempty(in)
       tmp = int2str(i);
-      in = in(find(in ~= tmp));
+      in = in(in ~= tmp);
    end
 end
 if isempty(in)

@@ -1,0 +1,277 @@
+twoLinkRobot_RunMe
+ Synthesis TVHINFSYN Bound:    0.0885
+ TVNORM Bisection Bound:    0.0885
+=================================================
+ Nominal Closed-Loop Analysis [HINFSYN]
+=================================================
+ Euclidean norm bound for theta1 and theta2 due to disturbance d1 and d2:    0.6500
+ Nominal CL Gain Linear Sim = 0.6470
+ Nominal CL Gain NonLinear Sim = 0.6496
+
+ ===> DK Iteration #1:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.6865 
+ ### IQC Analysis Step: 
+ Iter# = 1:  DLMI Gain Bound = 0.5915, RDE Gain Bound = 0.5887,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 0.5887, TotalCompTime = 790.1316
+ IQC Analysis Gain: = 0.5887 
+ Summary: Synthesis Gain = 0.6865, IQC Analysis Gain = 0.5887
+
+ ===> DK Iteration #2:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.5656 
+ ### IQC Analysis Step: 
+ Iter# = 1:  DLMI Gain Bound = 0.7237, RDE Gain Bound = 0.4803,
+ Iter# = 2:  DLMI Gain Bound = 0.2935, RDE Gain Bound = 0.3059, Adding t = 0.036, 2.149, 
+ Iter# = 3:  DLMI Gain Bound = 0.3004, RDE Gain Bound = 0.3018,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 0.3018, TotalCompTime = 3928.8375
+ IQC Analysis Gain: = 0.3018 
+ Summary: Synthesis Gain = 0.5656, IQC Analysis Gain = 0.3018
+
+ ===> DK Iteration #3:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.6778 
+ ### IQC Analysis Step: 
+ Iter# = 1:  DLMI Gain Bound = 1.0477, RDE Gain Bound = 0.4547,
+ Iter# = 2:  DLMI Gain Bound = 0.2850, RDE Gain Bound = 0.2476,
+ Iter# = 3:  DLMI Gain Bound = 0.1970, RDE Gain Bound = 0.2054, Adding t = 0.042, 2.060, 2.157, 
+ Iter# = 4:  DLMI Gain Bound = 0.2009, RDE Gain Bound = 0.2015,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 0.2015, TotalCompTime = 5205.5329
+ IQC Analysis Gain: = 0.2015 
+ Summary: Synthesis Gain = 0.6778, IQC Analysis Gain = 0.2015
+
+ ===> DK Iteration #4:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.7828 
+ ### IQC Analysis Step: 
+ Iter# = 1:  DLMI Gain Bound = 1.0765, RDE Gain Bound = 0.4382,
+ Iter# = 2:  DLMI Gain Bound = 0.2904, RDE Gain Bound = 0.2359,
+ Iter# = 3:  DLMI Gain Bound = 0.1886, RDE Gain Bound = 0.1789,
+ Iter# = 4:  DLMI Gain Bound = 0.1536, RDE Gain Bound = 0.1593, Adding t = 0.023, 2.074, 2.139, 
+ Iter# = 5:  DLMI Gain Bound = 0.1565, RDE Gain Bound = 0.1567,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 0.1567, TotalCompTime = 6625.1272
+ IQC Analysis Gain: = 0.1567 
+ Summary: Synthesis Gain = 0.7828, IQC Analysis Gain = 0.1567
+
+ ===> DK Iteration #5:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.8741 
+ ### IQC Analysis Step: 
+ Iter# = 1:  DLMI Gain Bound = 1.0830, RDE Gain Bound = 0.4334,
+ Iter# = 2:  DLMI Gain Bound = 0.2999, RDE Gain Bound = 0.2399,
+ Iter# = 3:  DLMI Gain Bound = 0.1919, RDE Gain Bound = 0.1764,
+ Iter# = 4:  DLMI Gain Bound = 0.1493, RDE Gain Bound = 0.1475,
+ Iter# = 5:  DLMI Gain Bound = 0.1330, RDE Gain Bound = 0.1386, Adding t = 4.856, 
+ Iter# = 6:  DLMI Gain Bound = 0.1338, RDE Gain Bound = 0.1376, Adding t = 2.087, 2.122, 4.867, 
+ Iter# = 7:  DLMI Gain Bound = 0.1369, RDE Gain Bound = 0.1369,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 0.1369, TotalCompTime = 9175.9189
+ IQC Analysis Gain: = 0.1369 
+ Summary: Synthesis Gain = 0.8741, IQC Analysis Gain = 0.1369
+
+ ===> DK Iteration #6:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.9467 
+ ### IQC Analysis Step: 
+ Iter# = 1:  DLMI Gain Bound = 1.0621, RDE Gain Bound = 0.4600,
+ Iter# = 2:  DLMI Gain Bound = 0.3153, RDE Gain Bound = 0.2689,
+ Iter# = 3:  DLMI Gain Bound = 0.2065, RDE Gain Bound = 0.1901,
+ Iter# = 4:  DLMI Gain Bound = 0.1567, RDE Gain Bound = 0.1510,
+ Iter# = 5:  DLMI Gain Bound = 0.1328, RDE Gain Bound = 0.1360, Adding t = 4.862, 
+ Iter# = 6:  DLMI Gain Bound = 0.1312, RDE Gain Bound = 0.1337, Adding t = 0.040, 4.850, 
+ Iter# = 7:  DLMI Gain Bound = 0.1312, RDE Gain Bound = 0.1315,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 0.1315, TotalCompTime = 8504.1776
+ IQC Analysis Gain: = 0.1315 
+ Summary: Synthesis Gain = 0.9467, IQC Analysis Gain = 0.1315
+
+ ===> DK Iteration #7:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.9626 
+ ### IQC Analysis Step: 
+ Iter# = 1:  DLMI Gain Bound = 1.0480, RDE Gain Bound = 0.4907,
+ Iter# = 2:  DLMI Gain Bound = 0.3250, RDE Gain Bound = 0.2587,
+ Iter# = 3:  DLMI Gain Bound = 0.1998, RDE Gain Bound = 0.1811,
+ Iter# = 4:  DLMI Gain Bound = 0.1503, RDE Gain Bound = 0.1437,
+ Iter# = 5:  DLMI Gain Bound = 0.1276, RDE Gain Bound = 0.1292, Adding t = 0.056, 2.078, 4.860, 
+ Iter# = 6:  DLMI Gain Bound = 0.1266, RDE Gain Bound = 0.1266,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 0.1266, TotalCompTime = 7259.6556
+ IQC Analysis Gain: = 0.1266 
+ Summary: Synthesis Gain = 0.9626, IQC Analysis Gain = 0.1266
+ Maximum number of iteration reached.
+ ---------------------------------------------------------------------------------
+ Final Results: WCGain: 0.1266, TotalIter: 7, MinIter: 7, TotalTime: 42468.9683
+ ---------------------------------------------------------------------------------
+ Closed Loop with Nominal Controller :
+ L2toE Gain Lower Bound = 0.323
+ LTV Simulation Terminal Euclidean Norm = 0.324
+ Closed Loop with Robust Controller :
+ L2toE Gain Lower Bound = 0.381
+ LTV Simulation Terminal Euclidean Norm = 0.381
+ Iter# = 1:  DLMI Gain Bound = 10.3439, RDE Gain Bound = 4.8344,
+ Iter# = 2:  DLMI Gain Bound = 3.7745, RDE Gain Bound = 3.5471,
+ Iter# = 3:  DLMI Gain Bound = 2.7124, RDE Gain Bound = 2.4917,
+ Iter# = 4:  DLMI Gain Bound = 1.9439, RDE Gain Bound = 1.7612,
+ Iter# = 5:  DLMI Gain Bound = 1.3916, RDE Gain Bound = 1.2525,
+ Iter# = 6:  DLMI Gain Bound = 0.9736, RDE Gain Bound = 1.0942, Adding t = 4.871, 
+ Iter# = 7:  DLMI Gain Bound = 1.0357, RDE Gain Bound = 1.0720, Adding t = 0.117, 0.347, 
+ Iter# = 8:  DLMI Gain Bound = 1.0653, RDE Gain Bound = 1.0796, Adding t = 0.659, 2.249, 4.792, 4.918, 
+ Iter# = 9:  DLMI Gain Bound = 1.0727, RDE Gain Bound = 1.0714,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 1.0714, TotalCompTime = 5137.0857
+ Iter# = 1:  DLMI Gain Bound = 6.4707, RDE Gain Bound = 3.6118,
+ Iter# = 2:  DLMI Gain Bound = 2.4157, RDE Gain Bound = 2.1113,
+ Iter# = 3:  DLMI Gain Bound = 1.3595, RDE Gain Bound = 1.2226,
+ Iter# = 4:  DLMI Gain Bound = 0.8278, RDE Gain Bound = 0.9496, Adding t = 0.048, 4.863, 
+ Iter# = 5:  DLMI Gain Bound = 0.8915, RDE Gain Bound = 0.9551, Adding t = 0.149, 1.990, 
+ Iter# = 6:  DLMI Gain Bound = 0.8712, RDE Gain Bound = 0.9728, Adding t = 0.092, 
+ Iter# = 7:  DLMI Gain Bound = 0.8882, RDE Gain Bound = 0.9764, Adding t = 0.351, 
+ Iter# = 8:  DLMI Gain Bound = 0.8852, RDE Gain Bound = 0.9875, Adding t = 4.975, 
+ Iter# = 9:  DLMI Gain Bound = 0.9386, RDE Gain Bound = 0.9510, Adding t = 2.232, 4.658, 
+ Iter# = 10:  DLMI Gain Bound = 0.9208, RDE Gain Bound = 0.9384, Adding t = 2.517, 4.905, 
+ Iter# = 11:  DLMI Gain Bound = 0.9269, RDE Gain Bound = 0.9259,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustGain = 0.9259, TotalCompTime = 11479.0502
+Starting parallel pool (parpool) using the 'local' profile ...
+connected to 8 workers.
+ wcg1:0.943, wcg2:0.900
+ wcg1:0.943, wcg2:0.900
+ wcg1:0.946, wcg2:0.900
+ wcg1:0.961, wcg2:0.903
+ wcg1:1.001, wcg2:0.891
+ wcg1:0.983, wcg2:0.903
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.613, wcg2:0.702
+ wcg1:0.940, wcg2:0.900
+ wcg1:1.001, wcg2:0.897
+ wcg1:0.949, wcg2:0.903
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.626, wcg2:0.711
+ wcg1:0.610, wcg2:0.699
+ wcg1:0.961, wcg2:0.903
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.894, wcg2:0.824
+ wcg1:0.943, wcg2:0.900
+ wcg1:0.940, wcg2:0.900
+ wcg1:0.604, wcg2:0.693
+ wcg1:0.980, wcg2:0.903
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.946, wcg2:0.900
+ wcg1:0.980, wcg2:0.903
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.955, wcg2:0.903
+ wcg1:0.943, wcg2:0.900
+ wcg1:0.607, wcg2:0.696
+ wcg1:0.604, wcg2:0.693
+ wcg1:0.607, wcg2:0.696
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.604, wcg2:0.696
+ wcg1:1.001, wcg2:0.894
+ wcg1:0.607, wcg2:0.699
+ wcg1:0.940, wcg2:0.900
+ wcg1:0.629, wcg2:0.714
+ wcg1:0.604, wcg2:0.693
+ wcg1:1.001, wcg2:0.891
+ wcg1:0.958, wcg2:0.903
+ wcg1:0.668, wcg2:0.729
+ wcg1:0.946, wcg2:0.900
+ wcg1:0.955, wcg2:0.903
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.983, wcg2:0.903
+ wcg1:0.623, wcg2:0.708
+ wcg1:0.671, wcg2:0.729
+ wcg1:0.952, wcg2:0.903
+ wcg1:0.833, wcg2:0.815
+ wcg1:0.967, wcg2:0.903
+ wcg1:0.949, wcg2:0.903
+ wcg1:0.995, wcg2:0.900
+ wcg1:0.943, wcg2:0.900
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.604, wcg2:0.693
+ wcg1:0.946, wcg2:0.903
+ wcg1:0.870, wcg2:0.845
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.943, wcg2:0.900
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.995, wcg2:0.900
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.610, wcg2:0.699
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.943, wcg2:0.900
+ wcg1:0.970, wcg2:0.903
+ wcg1:0.940, wcg2:0.900
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.998, wcg2:0.900
+ wcg1:0.952, wcg2:0.903
+ wcg1:0.607, wcg2:0.699
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.974, wcg2:0.903
+ wcg1:0.620, wcg2:0.708
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.726, wcg2:0.751
+ wcg1:0.607, wcg2:0.699
+ wcg1:0.610, wcg2:0.699
+ wcg1:0.992, wcg2:0.900
+ wcg1:0.607, wcg2:0.696
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.943, wcg2:0.900
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.992, wcg2:0.900
+ wcg1:0.604, wcg2:0.696
+ wcg1:0.607, wcg2:0.699
+ wcg1:0.696, wcg2:0.739
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.940, wcg2:0.900
+ wcg1:0.598, wcg2:0.690
+ wcg1:0.955, wcg2:0.903
+ wcg1:0.912, wcg2:0.897
+ wcg1:0.986, wcg2:0.903
+ wcg1:0.601, wcg2:0.693
+ wcg1:0.620, wcg2:0.708
+ wcg1:0.854, wcg2:0.830
+ Nominal Controller Closed Loop Worst-Case Gain: [1.0010,1.0714]
+ Worst-Case Delta:
+
+Deltawc1 =
+ 
+  -0.8 s + 12.18
+  --------------
+    s + 15.23
+ 
+Continuous-time transfer function.
+
+ Robust Controller Closed Loop Worst-Case Gain: [0.9033,0.9259]
+ Worst-Case Delta:
+
+Deltawc2 =
+ 
+  -0.8 s + 25.89
+  --------------
+    s + 32.36
+ 
+Continuous-time transfer function.
+
+ Completed worst-case gain analysis for UL = 0.00
+ Completed worst-case gain analysis for UL = 0.10
+ Completed worst-case gain analysis for UL = 0.30
+ Completed worst-case gain analysis for UL = 0.20
+ Completed worst-case gain analysis for UL = 0.60
+ Completed worst-case gain analysis for UL = 0.40
+ Completed worst-case gain analysis for UL = 0.70
+ Completed worst-case gain analysis for UL = 0.80
+ Completed worst-case gain analysis for UL = 0.50
+ Completed worst-case gain analysis for UL = 0.90
+IdleTimeout has been reached.
+Parallel pool using the 'local' profile is shutting down.

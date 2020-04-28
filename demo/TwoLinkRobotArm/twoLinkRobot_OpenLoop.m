@@ -3,6 +3,8 @@
 
 %% Load LTV model data
 load('twoLinkRobot_BuildLTVModel.mat');
+load('twoLinkRobot_SpecifyOptions.mat');
+load('twoLinkRobot_HinfDesign.mat','Delta','DelNorm');
 
 %% Nominal Open-Loop Analysis
 fprintf('==================================================\n');
@@ -11,7 +13,9 @@ fprintf('==================================================\n');
 
 % Nominal Open Loop L2 to E Gain
 % Expected 528.9 (MS Thesis)
-[gOLNom,dOL,infoOL] = tvnorm(G(1:2,:),2,tvnopt);
+NE = 2;
+tvnopt.Bounds = [0 1e3];
+[gOLNom,dOL,infoOL] = tvnorm(G(1:2,:),NE,tvnopt);
 fprintf(' Bounds on Nominal OL Gain = [%4.4f, %4.4f] \n',...
     gOLNom(1),gOLNom(2));
 dNorm = 0.001;
@@ -68,7 +72,7 @@ title(sprintf('Simulations with ||dOL||=%.4f',dNorm))
 fprintf('==================================================\n');
 fprintf('Robust Open-Loop Analysis\n')
 fprintf('==================================================\n');
-
+tvwcopt.RDEOptions.Bounds = [0 1e3];
 if true
     % Uncertain OL System:  Gunc = Fu(Gnom,Delta)
     % Delta is unit norm-bounded LTI uncertainty.  Gnom is constructed
@@ -78,6 +82,5 @@ if true
     % Robust (worst-case) L2 to E Gain
     % Expected 995 (MS Thesis)
     % Deprecated Syntax: [gOL,wcinfoOL] = tvrobL2toE(Gnom,v,p,Tf,tlmi,tSp);
-    Gnom.UserData = IQCParam;
-    [gOL,wcinfoOL] = tvwcgain(Gnom,2,tvwcopt);
+    [gOL,wcinfoOL] = tvwcgain(Gnom,Delta,NE,tvwcopt);
 end

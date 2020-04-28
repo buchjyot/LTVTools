@@ -56,8 +56,7 @@ end
 DispFlag = isequal(Opt.Display,'on');
 
 % Update cdreOpt based on tvnormoptions
-cdreOpt.OdeOptions = Opt.OdeOptions;
-cdreOpt.OdeSolver = Opt.OdeSolver;
+odeOpt = tvodeOptions('OdeOptions',Opt.OdeOptions,'OdeSolver',Opt.OdeSolver);
 
 % If NE is empty [] then make it zero
 if isempty(NE)
@@ -78,6 +77,9 @@ end
 
 % We do not support discriptor systems currently
 E = [];
+
+% XXX (JB) The following should work when 1:NY-NE is empty by some size
+% >> G(1:NY-NE,:)
 
 % Extract L2 part
 [~,~,CL2,DL2] = ssdata(tvss(G.Data(1:NY-NE,:),G.Time,G.InterpolationMethod));
@@ -109,6 +111,8 @@ COSTfh = @(GAM) deal(Qc,Rc(GAM),Sc,Fc);
 evmax = tvmax(eig(R0));
 gLow = sqrt(evmax);
 gLow = max(gLow,Opt.Bounds(1));
+
+% Display
 if DispFlag
     fprintf(' Lower Bound = %4.3f\n',gLow);
 end
@@ -123,10 +127,10 @@ if isfinite(Opt.Bounds(2))
     
     [Q,R,S,F] = COSTfh(gTry);
     if nout==1
-        P = cdre(A,B,Q,R,S,E,F,[Tf T0],cdreOpt);
+        P = cdre(A,B,Q,R,S,E,F,[Tf T0],odeOpt);
         Pdot = []; sol = [];
     else
-        [P,~,Pdot,sol] = cdre(A,B,Q,R,S,E,F,[Tf T0],cdreOpt);
+        [P,~,Pdot,sol] = cdre(A,B,Q,R,S,E,F,[Tf T0],odeOpt);
     end
     
     % Check convergence of P
@@ -157,10 +161,10 @@ else
         % Solve LTV Riccati Equation
         [Q,R,S,F] = COSTfh(gTry);
         if nout==1
-            P = cdre(A,B,Q,R,S,E,F,[Tf T0],cdreOpt);
+            P = cdre(A,B,Q,R,S,E,F,[Tf T0],odeOpt);
             Pdot = []; sol = [];
         else
-            [P,~,Pdot,sol] = cdre(A,B,Q,R,S,E,F,[Tf T0],cdreOpt);
+            [P,~,Pdot,sol] = cdre(A,B,Q,R,S,E,F,[Tf T0],odeOpt);
         end
         
         % Check convergence of P
@@ -209,10 +213,10 @@ if isfinite(gUpp)
         % Solve LTV Riccati Equation
         [Q,R,S,F] = COSTfh(gTry);
         if nout==1
-            P = cdre(A,B,Q,R,S,E,F,[Tf T0],cdreOpt);
+            P = cdre(A,B,Q,R,S,E,F,[Tf T0],odeOpt);
             Pdot = []; sol = [];
         else
-            [P,~,Pdot,sol] = cdre(A,B,Q,R,S,E,F,[Tf T0],cdreOpt);
+            [P,~,Pdot,sol] = cdre(A,B,Q,R,S,E,F,[Tf T0],odeOpt);
         end
         RDEcnt = RDEcnt + 1;
         
@@ -295,5 +299,8 @@ if nout>=2 && ~isempty(PLow)
     dTime = [T0; T0+0.999*(dTime(1)-T0); dTime];
     dData = cat(3,zeros(Nd,1,2), dData);
     d = tvmat(dData,dTime);
+    
+    % Normalize worst-case disturbance to have norm 1
+    d = d/tvnorm(d);
 end
 end

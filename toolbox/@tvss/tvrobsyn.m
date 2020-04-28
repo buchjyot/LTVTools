@@ -1,4 +1,4 @@
-function [K,CL,g,info] = tvrobsyn(Gunc,Ny,Nu,varargin)
+function [K,CL,g,info] = tvrobsyn(Gunc,Delta,Ny,Nu,varargin)
 %% TVROBSYN  Robust controller design on finite horizon using DK-iterations
 %
 %   [K,CL,GAM,DKINFO] = TVROBSYN(P,NMEAS,NCONT,NEUCLIDEAN,OPT) synthesizes a
@@ -10,20 +10,17 @@ function [K,CL,g,info] = tvrobsyn(Gunc,Ny,Nu,varargin)
 %   Sense.  TVROBSYN returns the controller K, the closed-loop model CL, and
 %   the robust closed-loop performance gain GAM These variables are related
 %   by:
-%
-%      CL = lft(P,K);
-%      g  = tvwcgain(CL,NE,OPT);
 
 %% Initialize & Input Processing
 NE = 0;
-narginchk(3,5);
+narginchk(4,6);
 nin = nargin;
 % nout = nargout;
 switch nin
-    case 4
+    case 5
         NE = varargin{1};
         Opts = tvrobsynOptions;
-    case 5
+    case 6
         % Default Order
         NE = varargin{1};
         Opts = varargin{2};
@@ -34,33 +31,32 @@ if isempty(NE)
     NE = 0;
 end
 
-% XXX Check that Euclidean penalty is valid
-
 %% TVROBSYN Engine
 % RDE based Synthesis and RDE/DLMI based Analysis
 nout = nargout;
 
 % Set Special Flags
-DEBUG = true;
-AbortFlag = false;
+ABORTFlag = false;
 
 % Read Options
 NIterMax = Opts.MaxIter;
 DispFlag = isequal(Opts.Display,'on');
 tvhopt = Opts.SynthesisOptions;
 tvwcopt = Opts.AnalysisOptions;
+DEBUG = Opts.DebugMode;
+
 if DEBUG
     tvnopt = tvnormOptions('Display',tvhopt.Display,'RelTol',tvhopt.RelTol,...
         'AbsTol',tvhopt.AbsTol,'Bounds',tvhopt.Bounds,'OdeSolver',tvhopt.OdeSolver,...
         'OdeOptions',tvhopt.OdeOptions); %#ok<*UNRCH>
 end
+
 TermDKIterFlag = Opts.StopWhenWithinTol;
 Count = 0;
 if TermDKIterFlag
     RelTol = Opts.RelTol;
     AbsTol = Opts.AbsTol;
 end
-IQCParam = Gunc.UserData;
 
 % Create an extended plant
 switch Ny
@@ -95,9 +91,9 @@ end
 
 %% Initialization
 % Uncertain Dimentions (Currently only SISO Delta supported)
-% XXX This will be part of tvuss later
-Nw = 1;
-Nv = 1;
+[Nw,Nv] = size(Delta);
+[T0,Tf] = getHorizon(Gunc);
+Tspan = [T0,Tf];
 
 % User can specify either function handle or double value for this
 Dinit = Opts.InitialDScale;
@@ -106,12 +102,12 @@ if isa(Dinit,'function_handle')
 end
 
 % Gscl stands for scalled open-loop plant
-[NY,NU] = size(Gunc); d{1} = Dinit;
+[NY,NU] = size(Gunc);
+d{1} = Dinit;
 Gscl{1} = blkdiag(Dinit,eye(NY-Nv))*Gunc*blkdiag(1/Dinit,eye(NU-Nw));
 
 % Start timing
 t0 = tic;
-
 try
     
     %% DK-Iterations
@@ -140,22 +136,22 @@ try
         % end
         
         % Formulate Closed Loop on Original "Gext" System
-        CLoop{i} = lft(evalt(Gext,Ks{i}.Time),Ks{i});
-        CLoop{i}.UserData = IQCParam;
+        % XXX : Assumes Delta is same across the time grid.
+        GextKt = evalt(Gext,Ks{i}.Time);
+        CLoop{i} = lft(GextKt,Ks{i});
         
         % D-Step
         if DispFlag
             fprintf(' ### IQC Analysis Step: \n');
         end
-        [wcgain(i),wcinfo{i}] = tvwcgain(CLoop{i},NE,tvwcopt);
+        [wcgain(i),wcinfo{i}] = tvwcgain(CLoop{i},Delta,NE,tvwcopt);
         if DispFlag
             fprintf(' IQC Analysis Gain: = %.4f \n', wcgain(i));
         end
         
         % D*D is equal to Psiv'*X11*Psiv
-        [~,idx] = min(cellfun(@(in) in.RDE.Upper.Gain,wcinfo{i}));
-        X11 = wcinfo{i}{idx}.LMI.X11;
-        d{i+1} = sqrt(X11);
+        X11 = wcinfo{i}.LMI.X11;
+        d{i+1} = LOCALSpectralFact(Delta,X11,Tspan);
         
         % Scaling variables
         dd = d{i+1};gg = wcgain(i);
@@ -163,15 +159,15 @@ try
         % For debugging check tvnorm of scaled closed loop
         if DEBUG
             CL1 = CLoop{i};
-            if isa(dd,'tvmat'), dd1 = evalt(dd,CL1.Time); else, dd1 = dd; end
+            dd1 = LOCALRegridDScale(dd,CL1.Time);
             CLscl = blkdiag(dd1,eye(NY-Nv-Ny))*CL1*blkdiag(1/dd1,eye(NU-Nw-Nu)/gg);
             tvnCLs{i} = tvnorm(CLscl,NE,tvnopt);
             fprintf(' SclPlant CL (TVN): %.4f\n',tvnCLs{i}(2));
         end
         
         %% ScaleOpenLoop for next iteration
-        if isa(dd,'tvmat'), dd = evalt(dd,Gunc.Time); end
-        Gscl{i+1} = blkdiag(dd,eye(NY-Nv))*Gunc*blkdiag(1/dd,eye(NU-Nw-Nu)/gg,eye(Nu));
+        dd = LOCALRegridDScale(dd,Gunc.Time);
+        Gscl{i+1} = blkdiag(dd,eye(NY-Nv))*Gunc*blkdiag(inv(dd),eye(NU-Nw-Nu)/gg,eye(Nu));
         
         %% Display Summary and store info
         if DispFlag
@@ -210,10 +206,15 @@ try
     end
     
 catch ME
-    fprintf('Unexpected error occurred.\n');
-    disp(ME);
-    info{i}.ME = ME;
-    AbortFlag = true;
+    fprintf(newline);
+    fprintf(' ========================================\n');
+    fprintf(' Unexpected error occurred.\n');
+    for i = 1:length(ME.stack)
+        fprintf(' ==> Error in line %d in function %s of the file %s\n',ME.stack(i).line,ME.stack(i).name,ME.stack(i).file);
+    end
+    fprintf(' ========================================\n');
+    throw(ME);
+    ABORTFlag = true;
 end
 
 % Run Finite Number of iterations and select the best controller
@@ -230,9 +231,41 @@ if i == NIterMax
 end
 
 % Final Result
-if DispFlag && ~AbortFlag
+if DispFlag && ~ABORTFlag
     fprintf(' ---------------------------------------------------------------------------------\n');
     fprintf(' Final Results: WCGain: %.4f, TotalIter: %d, MinIter: %d, TotalTime: %.4f\n',g,i,mid,toc(t0));
     fprintf(' ---------------------------------------------------------------------------------\n');
+end
+end
+
+function out = LOCALRegridDScale(in,t)
+%% LOCALRegridDScale
+switch class(in)
+    case {'tvmat','tvss'}
+        out = evalt(in,t);
+    otherwise
+        out = in;
+end
+end
+
+function out = LOCALSpectralFact(Delta,X11,Tspan)
+%% LOCALSpectralFact
+FH_SPECTRAL_FACT = true;
+[m,n] = size(X11);
+DYNAMIC_IQC = (prod(m,n) > 1);
+
+if DYNAMIC_IQC
+    % Spectral Factorization
+    [~,~,Psiv] = ltvutil.iqcEngine(Delta);
+    if FH_SPECTRAL_FACT
+        % Finite Horizon
+        out = tvspectralfact(Psiv,X11,Tspan);
+    else
+        % Infinite Horizon
+        [Dv,S] = spectralfact(Psiv,X11);
+        out = chol(S)*Dv;
+    end
+else
+    out = sqrt(X11);
 end
 end

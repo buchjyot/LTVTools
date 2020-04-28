@@ -154,34 +154,6 @@ Nu = size(B,2);
 % Turn extrapolation warning back to on
 warning('on','ltvtools:evalt:extrapolate');
 
-%% Uncertainty Modeling Parameters [Analysis]
-
-% Uncertainty Norm Bound
-DelNorm = 0.8;
-
-% Unc Sweep
-UL = 0:0.1:1;
-
-% IQC Parameters: Pole p<0 and Filter order v>=0
-IQCParam = struct('v',1,'p',-10);
-
-%% Set Options
-Display     = 'off';
-OdeSolver   = 'ode45';
-RelTol      = 2e-3;
-AbsTol      = 1e-4;
-Bounds      = [0 1e3];
-
-tvhopt = tvhinfsynOptions('Bounds',Bounds,'Display',Display,'OdeSolver',...
-    OdeSolver,'RelTol',RelTol,'AbsTol',AbsTol);
-tvnopt = tvnormOptions('Bounds',Bounds,'Display',Display,'OdeSolver',....
-    OdeSolver,'RelTol',RelTol,'AbsTol',AbsTol);
-tvopt = tvodeOptions('OdeSolver',OdeSolver);
-tvwcopt = tvwcOptions('RDEOptions',tvnopt,'Display','on',...
-    'Nsp',10,'Nlmi',20,'StopTol',5e-3,'MaxIter',10);
-tvropt = tvrobsynOptions('SynthesisOptions',tvhopt,...
-    'AnalysisOptions',tvwcopt,'Display','on','MaxIter',15);
-
 %% Store Everything to MAT file
 % So that other files can just load this data as a starting point
-save('twoLinkRobot_BuildLTVModel.mat');
+save(mfilename);

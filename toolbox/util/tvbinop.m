@@ -24,22 +24,22 @@ if isTimeInvariant
         C = tvuss(CData);
     end
 else
-    % Both A and B are Grids 
+    % Both A and B are Grids
     ATime = A.Time;
     Nt = numel(ATime);
     AIM = A.InterpolationMethod;
-        
+    
     % Grab TVMAT Data
     AData = A.Data;
     nad = ndims(AData)-3;
     aid = repmat({':'},1,nad);
-
+    
     BData = B.Data;
     nbd = ndims(BData)-3;
-    bid = repmat({':'},1,nbd);    
+    bid = repmat({':'},1,nbd);
     CData = cell(Nt,1);
     for i=1:Nt
-       CData{i} = opfh( AData(:,:,aid{:},i), BData(:,:,bid{:},i), varargin{:} );
+        CData{i} = opfh( AData(:,:,aid{:},i), BData(:,:,bid{:},i), varargin{:} );
     end
     CData = cat( ndims(CData{1})+1, CData{:});
     if isa(CData,'double') || isa(CData,'logical')
@@ -51,5 +51,5 @@ else
     elseif isa(CData,'uss')
         C = tvuss(CData,ATime,AIM);
     end
-
+end
 end

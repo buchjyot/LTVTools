@@ -34,7 +34,7 @@ P = ss(P.A,P.B,eye(Nx),0);
 % Horizon
 T0 = 0;
 Ts = 0.1;
-Tf = 2;
+Tf = 3;
 
 % Uncertain IO dimentions
 Nv = 1;
@@ -47,7 +47,7 @@ WnScl = 0.01;
 
 % Output Design Weights
 WeuScl = 1;
-WexScl = 1.5;
+WexScl = 2;
 
 % Uncertainty Design Weights
 DelInScl = 1;
@@ -121,11 +121,8 @@ Gfi = evalt(tvss(Gs),T0:Ts:Tf);
 %% Describe Uncertainty using IQCs
 % NormBound on Uncertainty Delta
 % || Delta || <= beta
+Delta = udyn('Delta',[Nw Nv],'UserData',[0,0,0]);
 beta = 0.6;
-
-% Choose IQC Parameterization and pass it as UserData
-Gunc.UserData = struct('v',0,'p',0);
-GuSfb.UserData = struct('v',0,'p',0);
 
 %% Available Options
 Display     = 'off';
@@ -137,8 +134,9 @@ AbsTol      = 1e-4;
 tvopt   = tvodeOptions('OdeSolver',OdeSolver);
 tvhopt  = tvhinfsynOptions('Bounds',Bounds,'OdeSolver',OdeSolver,'RelTol',RelTol,'AbsTol',AbsTol);
 tvnopt  = tvnormOptions('Bounds',Bounds,'OdeSolver',OdeSolver,'RelTol',RelTol,'AbsTol',AbsTol);
-tvwcopt = tvwcOptions('RDEOptions',tvnopt,'Display','on','MaxIter',10,'TimeVaryingIQC',false,'Nlmi',20,'StopTol',5e-3);
-tvropt = tvrobsynOptions('MaxIter',20,'SynthesisOptions',tvhopt,'AnalysisOptions',tvwcopt,'Display','on');
+tvwcopt = tvwcOptions('RDEOptions',tvnopt,'Display','on','MaxIter',10,'Nlmi',25,'StopTol',5e-3);
+tvropt = tvrobsynOptions('MaxIter',20,'SynthesisOptions',tvhopt,'AnalysisOptions',tvwcopt,...
+    'Display','on','DebugMode',false);
 
 %% Save Data
 save(mfilename);

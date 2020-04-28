@@ -29,6 +29,14 @@ function out = EVALTRouting(in,T,tvflag)
 % T      : Time Grid
 % tvfalg : Whether the output should be in native object or array
 
+% Lift input to TVMAT or TVSS
+switch class(in)
+    case 'double'
+        in = tvmat(in);
+    case 'ss'
+        in = tvss(in);
+end
+
 % Identify class of incoming TVOBJECT and redirect to respective helper
 switch class(in)
     case 'tvmat'

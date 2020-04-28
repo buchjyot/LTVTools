@@ -1,25 +1,33 @@
-function [Ae,Be,Ce,De,CeT,Nz,NeL2,Nd] = extsystem(G,v,p,NE)
+function [Ae,Be,Ce,De,CeT,Nz,NeL2,Nd] = extsystem(G,Psi,Nv,Nw,NE)
 % This function creates the extended system from G and the IQC multiplier.
 % This function assumes the uncertain
 %
 % Inputs
-%   G - Nominal LTV system (as a TVSS). The uncertain system is
-%       Fu(Delta,G) where Delta is a SISO, LTI, uncertainty
-%       satisyfing the unit norm bound ||Delta|| <= 1.
-%   NE - Number of outputs penalized in euclidean sense
-%   (v,p) - The IQC multiplier is blkdiag(Psiv'*X11*Psiv,-Psiv'*X11*Psiv)
-%           where Psiv:=[1; 1/(s-p); ...; 1/(s-p)^v] and X11>=0.
-%
+%   G   - Plant G with uncertainty channels
+%   Psi - IQC filter
+%   Nv  - Dimentions of Uncertain Output of G
+%   Nw  - Dimentions of Uncertain Input to G
+%   NE  - Euclidean penalties of interest
+% 
 % Outputs
-%   (Ae,Be,Ce,De) - State matrices for extended system.
-%   Nz- Dimension of IQC filter output, i.e. Nz=2*(v+1)
-%   (NeL2,Nd) - Dimensions of L2 outputs and disturbance channels
+%   (Ae,Be,Ce,De)   - State matrices for extended system.
+%   (Nz)            - Dimension of IQC filter output, i.e. Nz
+%   (NeL2,Nd)       - Dimensions of L2 outputs and disturbance channels
 
 % Input Processing
-narginchk(3,4);
-if nargin == 3
+narginchk(4,5);
+if nargin == 4
     NE = 0;
 end
+
+%% IQC Multiplier Psi
+[Apsi,Bpsi,Cpsi,Dpsi] = ssdata(Psi);
+Np = size(Apsi,1);
+Bpsi1 = Bpsi(:,1:Nv);
+Bpsi2 = Bpsi(:,Nv+1:end);
+Dpsi1 = Dpsi(:,1:Nv);
+Dpsi2 = Dpsi(:,Nv+1:end);
+Nz = size(Psi,1);
 
 %% Extract Euclidean part
 NY = size(G,1);
@@ -38,35 +46,20 @@ G.Data(idE,:) = [];
 %% Pull apart nominal system L2 parts
 [Ag,Bg,Cg,Dg] = ssdata(G);
 Nx = size(Ag,1);
-Bg1 = Bg(1:Nx,1);
-Bg2 = Bg(1:Nx,2:end);
-Cg1 = Cg(1,1:Nx);
-Cg2 = Cg(2:end,1:Nx);
 
-Dg11 = Dg(1,1);
-Dg12 = Dg(1,2:end);
-Dg21 = Dg(2:end,1);
-Dg22 = Dg(2:end,2:end);
+Bg1 = Bg(1:Nx,1:Nw);
+Bg2 = Bg(1:Nx,Nw+1:end);
+Cg1 = Cg(1:Nv,1:Nx);
+Cg2 = Cg(Nv+1:end,1:Nx);
+
+Dg11 = Dg(1:Nv,1:Nw);
+Dg12 = Dg(1:Nv,Nw+1:end);
+Dg21 = Dg(Nv+1:end,1:Nw);
+Dg22 = Dg(Nv+1:end,Nw+1:end);
 
 [NeL2,Nd] = size(Dg22);
 
-%% IQC Multiplier Psi
-Psi1 = ss(p,1,1,0);
-Psiv = ss(1);
-for i1=1:v
-    Psiv = [eye(i1); zeros(1,i1-1) Psi1]*Psiv;
-end
-Psi = blkdiag(Psiv,Psiv);
-
-[Apsi,Bpsi,Cpsi,Dpsi] = ssdata(Psi);
-Bpsi1 = Bpsi(:,1);
-Bpsi2 = Bpsi(:,2);
-Dpsi1 = Dpsi(:,1);
-Dpsi2 = Dpsi(:,2);
-Nz = 2*(v+1);
-
 %% Extended System
-Np = 2*v;
 Ae = [Apsi Bpsi1*Cg1; zeros(Nx,Np) Ag];
 Be = [Bpsi1*Dg11+Bpsi2 Bpsi1*Dg12; Bg1 Bg2];
 Ce = [Cpsi Dpsi1*Cg1; zeros(NeL2,Np) Cg2];

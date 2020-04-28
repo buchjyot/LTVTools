@@ -1,11 +1,22 @@
 %% TwoStateEx_UncSweep
 load('TwoStateEx_UncSweep.mat');
+load('TwoStateEx.mat','beta');
 figure;clf;grid on;box on;hold on;
 plot(UL,wcgain1,'-ob',UL,wcgain2,'-.rs','LineWidth',2);
 legend('$\tilde{T}_0$',['$\tilde{T}_{' num2str(beta) '}$'],...
     'interpreter','latex','location','northwest','fontsize',14);
 xlabel('Uncertainty Level (\beta)');
 ylabel('Worst-Case Gain');
+XL = xlim;
+YL = ylim;
+
+figure;clf;grid on;box on;hold on;
+plot(UL(1),wcgain1(1),'-ob',UL(7),wcgain2(7),'-.rs','LineWidth',2);
+legend('$\tilde{T}_0$',['$\tilde{T}_{' num2str(beta) '}$'],...
+    'interpreter','latex','location','northwest','fontsize',14);
+xlabel('Uncertainty Level (\beta)');
+ylabel('Worst-Case Gain');
+xlim(XL);ylim(YL);
 clear;
 
 %% TwoStateEx_L2toE_NominalAnalysis
@@ -31,6 +42,7 @@ legend('$T_{0 (d_1\rightarrow e_E)}$',...
 axis equal
 yl = ylim;
 ylim(yl+0.1*yl);
+xlim([-0.6 0.6])
 clear;
 
 %% TwoStateEx_L2toE_RobustAnalysis
@@ -57,4 +69,15 @@ ylabel('x_2','FontSize',14);
 axis equal
 yl = ylim;
 ylim(yl+0.1*yl)
+xlim([-1 1])
+clear
+
+%% Plot Iteration Progress
+load('TwoStateEx_RobustSynthesis.mat','robinfo');
+figure;clf;
+wcg = cellfun(@(x) x.wcgain,robinfo);
+plot(2:20,wcg(2:20),'k-*','LineWidth',1.5,'MarkerSize',8);
+ylabel('Worst-Case Gain');
+xlabel('Iteration Count (i)');
+grid on;box on;
 clear

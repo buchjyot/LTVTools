@@ -1,12 +1,11 @@
-function [wcg,info] = tvwcgain(G,varargin)
+function [wcg,wcinfo] = tvwcgain(G,Delta,varargin)
 %% TVWCGAIN Worst-Case Gain of uncertain LTV system on a finite horizon
 %
 % Inputs
-%   G - Nominal LTV system (as a TVSS). The uncertain system is
-%       Fu(G,Delta) where Delta is a SISO, uncertainty
-%       satisyfing the unit norm bound ||Delta|| <= 1.
+%   G - Nominal LTV system
+%   Delta - Uncertainty charecterized by udyn
 %   NE - Number of outputs penalized in Euclidean sense
-%   tvwcOptions - Options set for tvwcgain
+%   Opt - tvwcOptions set for tvwcgain
 %
 % Outputs
 %   wcg - Gain Upper bound
@@ -17,18 +16,17 @@ function [wcg,info] = tvwcgain(G,varargin)
 
 %% Input Processing
 nin = nargin;
-% nout = nargout;
-narginchk(1,3);
+narginchk(2,4);
 
 NE = []; Opt = [];
 switch nin
-    case 2
+    case 3
         if isa(varargin{1},'tvwcOptions')
             Opt = varargin{1};
         elseif isa(varargin{1},'double')
             NE = varargin{1};
         end
-    case 3
+    case 4
         NE = varargin{1};
         Opt = varargin{2};
 end
@@ -40,13 +38,12 @@ end
 
 % Time Horizon
 ltvutil.verifyFH(G);
+[T0,Tf] = getHorizon(G);
 
 % If NE is empty [] then make it zero
 if isempty(NE)
     NE = 0;
 end
-
-% XXX Check that Euclidean penalty is valid
 
 %% Read Options
 DispFlag = isequal(Opt.Display,'on');
@@ -56,9 +53,6 @@ RDEopt = Opt.RDEOptions;
 
 % Maximum # of iterations
 Niter = Opt.MaxIter;
-
-% Time Horizon
-[T0,Tf] = getHorizon(G);
 
 % Time Grid for LMI Approach
 tlmi = linspace(T0,Tf,Opt.Nlmi);
@@ -71,41 +65,20 @@ tSp = linspace(T0,Tf,Nsp);
 % Create Spline Basis Functions
 Ps = tvmat(reshape(eye(Nsp),Nsp,1,Nsp),tSp,'Spline');
 
-% See user data for IQC Parameterization
-IQCParam = G.UserData;
-if isempty(IQCParam)
-    warning('ltvtools:tvwcgain:usingDefaultIQCParam','UserData property is empty, assuming default IQC parameterization v = p = 0');
-    v = 0;p = 0;
-else
-    v = IQCParam.v;
-    p = IQCParam.p;
-end
-
 %% Memory Allocation
 glmi = zeros(Niter,1);
 grde = zeros(Niter,1);
 info = cell(Niter,1);
 
-%% Plant Scalling Based Specified ULevel
-% XXX: This will be part of tvuss later.
-Nv = 1;
-Nw = 1;
+%% Read UserData
+[Nw,Nv] = size(Delta);
+[NY,NU] = size(G);
 
+%% Plant Scalling Based Specified ULevel
 % Check uncertainty level and scale the plant accordingly
 sqrtUL = sqrt(Opt.ULevel);
-[NY,NU] = size(G);
 if ~isequal(sqrtUL,1)
     G = blkdiag(sqrtUL,eye(NY-Nv))*G*blkdiag(sqrtUL,eye(NU-Nw));
-end
-
-% Flag whether you want to consider timevarying IQC matrix
-tvIQCFlag = Opt.TimeVaryingIQC;
-
-% Choose LMI Function based on tvIQCFlag
-if tvIQCFlag
-    FHLMIFCN = @ltvutil.tvfhlmi;
-else
-    FHLMIFCN = @ltvutil.fhlmi;
 end
 
 %% Iterations
@@ -130,24 +103,19 @@ for i=1:Niter
     end
     
     %% Finite Horizon: LMI Condition
-    [glmi(i),X11,Plmi,Pdotlmi,Y,lamP] = ...
-        FHLMIFCN(G1,v,p,Ps1,Psdot1,Pm,Pmdot,LMIopt,NE);
+    [glmi(i),LMIinfo] = ltvutil.fhlmiEngine(G1,Delta,Ps1,Psdot1,Pm,Pmdot,LMIopt,NE);
     if DispFlag
-        fprintf('LMI Gain Bound = %4.4f,',glmi(i));
+        fprintf(' DLMI Gain Bound = %4.4f,',glmi(i));
     end
-    LMIinfo = struct('X11',X11,'P',Plmi,'Pdot',Pdotlmi,'Y',Y,'lamP',lamP);
     
     % Evaluate LMI solution (for debugging) to show eLMI1<=0
-    % [LMI1,eLMI1] = evalLMI(G1,NE,v,p,glmi(i),X11,Plmi,Pdotlmi);
+    % [LMI1,eLMI1] = evalLMI(G1,Delta,LMIinfo.P,LMIinfo.Pdot,glmi(i),glmi(i),LMIinfo,NE);
     % figure; tvplot(eLMI1);
     
     %% Finite Horizon: RDE + Bisection
-    if tvIQCFlag
-        X11RDE = evalt(tvmat(X11),G.Time);
-    else
-        X11RDE = X11;
-    end
-    [gbnds,RDEinfo] = ltvutil.fhrde(G,v,p,Tf,X11RDE,[],RDEopt,NE);
+    [gbnds,RDEinfo] = ltvutil.fhrdeEngine(G,Delta,LMIinfo,RDEopt,NE);
+    
+    % Choose an Upper Bound
     grde(i) = gbnds(2);
     if isfinite(grde(i))
         trde = fliplr(RDEinfo.Upper.sol.x);
@@ -183,13 +151,8 @@ for i=1:Niter
             tDense = union(tDense,tadd);
         end
         
-        % Evaluate LMI using (P,Pdot,X11,g) but on dense time grid
+        % Evaluate LMI using on dense time grid
         G2 = evalt(G,tDense);
-        if tvIQCFlag
-            X11Dense = evalt(X11,tDense); %#ok<*UNRCH>
-        else
-            X11Dense = X11;
-        end
         Ps2 = evalt(Ps,tDense);
         Psdot2 = tvdiff(Ps,tDense);
         if i>1 && isfinite(grde(i-1))
@@ -199,9 +162,8 @@ for i=1:Niter
             % No convergent RDE solution on previous iteration
             Pm2 = tvmat; Pmdot2 = Pm2;
         end
-        
-        [Pval,Pdotval] = evalP(Ps2,Psdot2,Pm2,Pmdot2,Y,lamP);
-        [~,eLMI2] = evalLMI(G2,NE,v,p,glmi(i),X11Dense,Pval,Pdotval);
+        [Pval,Pdotval] = evalP(Ps2,Psdot2,Pm2,Pmdot2,LMIinfo.Y,LMIinfo.lamP);
+        [~,eLMI2] = evalLMI(G2,Delta,Pval,Pdotval,glmi(i),LMIinfo,NE);
         
         % Update the LMI time grid.
         eLMI2 = eLMI2.Data(:);
@@ -257,8 +219,17 @@ if i < Niter
     info{i} = struct('TotalTime',toc(t0),'LMI',LMIinfo,'RDE',RDEinfo);
 end
 
+% Display logs
+if DispFlag
+    if i == Niter
+        fprintf('\n Maximum number of iteration reached.');
+    else
+        fprintf('\n Stopping tolerance satisfied: terminating analysis iterations.');
+    end
+end
+
 % Store outputs
-[wcg] = min(grde(1:i)); % grde(i);
+[wcg,idx] = min(grde(1:i)); % grde(i);
 info = info(1:i);
 tTotal = toc(t0);
 if DispFlag
@@ -266,6 +237,8 @@ if DispFlag
     fprintf(' RobustGain = %4.4f,',wcg);
     fprintf(' TotalCompTime = %4.4f\n',tTotal);
 end
+wcinfo = info{idx};
+wcinfo.AllIter = info;
 end
 
 %% LOCAL Function: evalP
@@ -332,15 +305,26 @@ Pdot = tvmat(Pdot,t);
 end
 
 %% LOCAL Function: evalLMI
-function [LMI,eLMI] = evalLMI(G,NE,v,p,g,X11,P,Pdot)
+function [LMI,eLMI] = evalLMI(G,Delta,P,Pdot,g,LMIinfo,NE)
 % This function evaluates the finite-horizon gain condition on a time grid
 % for given values of the IQC, storage function, and gain. **The function
 % assumes G is LTV and Delta is a SISO, unit norm bounded, LTI uncertainty.
 %
 % NOTE - All data (G,P,Pdot) must have the same time grid t
 
+% Only required for time-varying IQC multiplier lambda
+[Nw,Nv] = size(Delta);
+[Type,Psi] = ltvutil.iqcEngine(Delta);
+tDense = G.Time;
+if isequal(Type,2)
+    X11 = evalt(LMIinfo.X11,tDense); %#ok<*UNRCH>
+else
+    X11 = LMIinfo.X11;
+end
+X = blkdiag(X11,-X11);
+
 % Form Extended System
-[AAe,BBe,CCe,DDe,~,Nz,~,Nd] = ltvutil.extsystem(G,v,p,NE);
+[AAe,BBe,CCe,DDe,~,Nz,~,Nd] = ltvutil.extsystem(G,Psi,Nv,Nw,NE);
 n = size(AAe,1);
 CC1e = CCe(1:Nz,:);
 DD1e = DDe(1:Nz,:);
@@ -350,8 +334,6 @@ DD2e = DDe(Nz+1:end,:); % Should be zero for pure Euclidean Cost
 % Evaluate LMI
 P.InterpolationMethod = 'Linear';
 Pdot.InterpolationMethod = 'Linear';
-
-X = blkdiag(X11,-X11);
 gsq = g^2;
 LMI = [AAe'*P+P*AAe+Pdot P*BBe; BBe'*P zeros(Nd+1)] ...
     + blkdiag( zeros(n+1), -gsq*eye(Nd) ) + [CC1e DD1e]'*X*[CC1e DD1e] ...

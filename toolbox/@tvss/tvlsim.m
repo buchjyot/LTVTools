@@ -36,7 +36,7 @@ if isempty(x0)
     x0 = zeros(Nx,1);
 end
 if isempty(Opt)
-    Opt = tvodeOptions('OdeOptions',odeset('RelTol',1e-5,'AbsTol',1e-8));
+    Opt = tvodeOptions;
 end
 OdeSolverFh = str2func(Opt.OdeSolver);
 OdeOpt = Opt.OdeOptions;
@@ -61,6 +61,10 @@ X = tvmat(x,t);
 %% Construct Outputs
 [U,C,D] = evalt(U,C,D,t);
 Y = C*X+D*U;
+
+% Return X and Y in terms of input U time grid
+% Discussed with Pete during 12/6/2019
+[X,Y] = evalt(X,Y,U.Time);
 
 %% LOCALderiv
 function xdot = LOCALderiv(t,x,A,B,U)

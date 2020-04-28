@@ -1,13 +1,13 @@
 function H = tvplot(varargin)
-% PLOT plots the tvmat with respect to the time
+% TVPLOT plots the tvmat with respect to the time
 %
-% PLOT(X) or PLOT(X,LineSpec) plots the X.Data versus X.Time with optional
+% TVPLOT(X) or TVPLOT(X,LineSpec) plots the X.Data versus X.Time with optional
 % LineSpec
 %
-% PLOT(X,data) plots the X.Data versus second argument Data after ignoring
+% TVPLOT(X,data) plots the X.Data versus second argument Data after ignoring
 % the time provided in TVMAT
 %
-% PLOT(X,Y) or PLOT(X,Y,LineSpec) where X and Y are TVMAT, plots the X.Data
+% TVPLOT(X,Y) or TVPLOT(X,Y,LineSpec) where X and Y are TVMAT, plots the X.Data
 % vs Y.Data with optional LineSpec specified
 %
 % For constant matrices or infinite horizon matrices containing inf in
@@ -15,19 +15,20 @@ function H = tvplot(varargin)
 %
 %
 % Examples:
-%   ATGrid = 0:0.1:10;
-%   BTGrid = 0:0.01:10;
-%   AData = 5*sin(ATGrid);
-%   BData = 5*cos(BTGrid);
+%   TGrid = 0:0.1:10;
+%   AData = 5*sin(TGrid);
+%   BData = 5*cos(TGrid);
 %
-%   A = tvmat(AData,ATGrid);
-%   B = tvmat(BData,BTGrid);
-%   figure;
-%   plot(A,B);
+%   A = tvmat(AData,TGrid);
+%   B = tvmat(BData,TGrid);
 %
-%   B = evalt(B,ATGrid,'tvmat');
-%   figure;
-%   plot(A,B,'-r','LineWidth',3);
+%   % Plot A's Data vs A's Time
+%   figure; grid on; hold on;
+%   tvplot(A,'LineWidth',3);
+%
+%   % Plot A's Data vs B's Data
+%   figure;grid on;hold on;
+%   tvplot(A,B,'-r','LineWidth',3);
 
 %% Input Processing
 % Replace each TVMAT input by its (reshaped) data
@@ -134,8 +135,8 @@ end
 if ~IgnoreTime
     TUu = unique(TU(~cellfun('isempty',TU)));
     if numel(TUu) == 1
-        xlabel(sprintf('Time (%s)',TUu{1}),'FontSize',14);
+        xlabel(sprintf('Time (%s)',TUu{1}));
     else
-        xlabel('Time','FontSize',14);
+        xlabel('Time');
     end
 end

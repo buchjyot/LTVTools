@@ -19,7 +19,6 @@ fprintf(' CompTime:= %.4f, RDECnt:= %d\n',nominfo.TotalTime,nominfo.RDEcnt);
 
 % Nominal Controller (With Design Weights)
 CLn = lft(evalt(Gunc,Knom.Time),Knom);
-CLn.UserData = Gunc.UserData;
 
 %% Save Data
 save(mfilename,'Knom','CLn','gnom','gn','dWcn','nominfo');

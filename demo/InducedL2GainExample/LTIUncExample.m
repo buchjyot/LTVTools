@@ -45,9 +45,9 @@ n = size(Pih,1);
 % Analysis
 Nall = zeros(NT,1);
 RobTime = zeros(NT,1);
+DeltaIQC = udyn('Delta',[1 1],'UserData',[0,p,v]);
 tvwcopt = tvwcOptions('Nlmi',20,'Nsp',10);
 T0 = 0;
-IQCParam = struct('v',v,'p',p);
 tstart = tic;
 for k=1:NT
     % Finite Horizon
@@ -57,8 +57,7 @@ for k=1:NT
     % Robust L2 to L2 gain
     % Deprecated Syntax: [gfinal,wcinfo] = tvrobL2toL2(tvss(G),v,p,T,tlmi,tSp);
     Gtv = evalt(tvss(G),[T0 T]);
-    Gtv.UserData = IQCParam;
-    [gfinal,wcinfo] = tvwcgain(Gtv,0,tvwcopt);
+    [gfinal,wcinfo] = tvwcgain(Gtv,DeltaIQC,0,tvwcopt);
     Niter = numel(wcinfo);
     Nall(k) = Niter;
     RobTime(k) = wcinfo{end}.TotalTime;

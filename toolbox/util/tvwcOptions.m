@@ -11,9 +11,6 @@ classdef (CaseInsensitiveProperties = true, ...
         RDEOptions = tvnormOptions;
         LMIOptions = tvlmiOptions;
         
-        % Time-Varying IQC Flag
-        TimeVaryingIQC = false;
-        
         % Maximum iterations for analysis
         MaxIter = 10;
         
@@ -118,7 +115,7 @@ classdef (CaseInsensitiveProperties = true, ...
                 error('LMIOptions must be specified as ''tvlmiOptions''.');
             end
         end
-        
+                
         %% Specify Display
         function opt = set.Display(opt,V)
             V = ltipack.matchKey(V,{'off','on'});
@@ -128,12 +125,5 @@ classdef (CaseInsensitiveProperties = true, ...
             opt.Display = V;
         end
         
-        %% Time-Varying IQC
-        function opt = set.TimeVaryingIQC(opt,V)            
-            if isempty(V)
-                error('The "TimeVaryingIQC" option must be set to ''true'' or ''false'' boolean values.')
-            end
-            opt.TimeVaryingIQC = boolean(V);
-        end
     end
 end

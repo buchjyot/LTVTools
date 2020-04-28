@@ -18,11 +18,11 @@ NoiseLevel = 1;
 [P,Q] = covar(SYS,NoiseLevel);
 
 %% Plot
-figure;
+figure(1);
 tvplot(Qt,'b',evalt(tvmat(Q),Qt.Time),'--r');
 title('State Covariances');
 
-figure;grid on;box on;
+figure(2);grid on;box on;
 Tall = [0.3,0.5,1,2,3,10,20];
 NT = length(Tall);
 legendArray = cell(NT,1);

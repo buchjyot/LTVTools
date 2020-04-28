@@ -11,7 +11,7 @@ function n = tvnorm(V,p)
 
 %% Input Processing
 szV = size(V);
-if ndims(V)>2 || all( szV(1:2) > 1 )
+if ~ismatrix(V) || all( szV(1:2) > 1 )
     error('Input to TVNORM must be an N-by-1 or 1-by-N vector')
 end
 if nargin==1

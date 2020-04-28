@@ -19,7 +19,6 @@ else
     M = LOCALConvert2tv(MData,obj.Time,obj.InterpolationMethod);
     Del = LOCALConvert2tv(DelData,obj.Time,obj.InterpolationMethod);
 end
-
 end
 
 function [M] = LOCALConvert2tv(Data,varargin)

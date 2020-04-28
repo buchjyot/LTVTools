@@ -4,7 +4,7 @@ classdef (CaseInsensitiveProperties = true, ...
     properties
         % Display progress
         Display = 'off';
-
+        
         % Tolerances for DK-iteration termination condition
         RelTol = 1e-3;
         AbsTol = 1e-4;
@@ -22,6 +22,9 @@ classdef (CaseInsensitiveProperties = true, ...
         % Initial D-scale
         % Can be a function handle or matrix itself
         InitialDScale = @(Nw,Nv) eye(Nw,Nv);
+        
+        % Debug Mode
+        DebugMode = false;
     end
     
     methods
@@ -51,7 +54,7 @@ classdef (CaseInsensitiveProperties = true, ...
             end
             opt.Display = V;
         end
-
+        
         %% Specify RelTol
         function opt = set.RelTol(opt,V)
             if isa(V,'double') && isscalar(V) && V >= 0
@@ -97,18 +100,23 @@ classdef (CaseInsensitiveProperties = true, ...
             end
         end
         
-        %% Specify InitialDScale 
+        %% Specify InitialDScale
         function opt = set.InitialDScale(opt,V)
-           if isa(V,'function_handle') || isa(V,'double')
-               opt.InitialDScale = V;
-           else
-               error('InitialDScale must be either function_handle or a double.');
-           end
+            if isa(V,'function_handle') || isa(V,'double')
+                opt.InitialDScale = V;
+            else
+                error('InitialDScale must be either function_handle or a double.');
+            end
         end
         
         %% Set StopDKIterWhenWCGainWithinTol
         function opt = set.StopWhenWithinTol(opt,V)
             opt.StopWhenWithinTol = boolean(V);
+        end
+        
+        %% Set DebugMode
+        function opt = set.DebugMode(opt,V)
+            opt.DebugMode = boolean(V);
         end
     end
 end

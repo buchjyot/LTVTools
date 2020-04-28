@@ -89,7 +89,7 @@ NH2 = 1:NY-NE;
 NTf = NY-NE+1:NY;
 
 % Compute Combined Cost
-[IntegralCost,IntegralInfo]   = LOCALComputeH2CostOverTheHorizon(G,NH2,T0,Tf,Opt);
+[IntegralCost,IntegralInfo] = LOCALComputeH2CostOverTheHorizon(G,NH2,T0,Tf,Opt);
 [TerminalCost,TerminalInfo] = LOCALComputeH2CostAtTerminalTime(G,NTf,T0,Tf,Opt);
 
 %% Final Output
@@ -97,7 +97,7 @@ if ~isempty(NTf) && ~isempty(NH2)
     % User wants to compute combined cost
     % XXX: Need to consider time normalization for the following equation?
     % i.e. devide by 2?
-    out = sqrt(IntegralCost + TerminalCost);
+    out = sqrt((IntegralCost + TerminalCost)/2);
     info = struct('IntegralInfo',IntegralInfo,'TerminalInfo',TerminalInfo);
 elseif ~isempty(NTf)
     % User wants to compute Terminal cost

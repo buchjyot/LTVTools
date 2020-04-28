@@ -4,6 +4,8 @@
 
 %% Load LTV model data
 load('twoLinkRobot_BuildLTVModel.mat');
+load('twoLinkRobot_SpecifyOptions.mat');
+load('twoLinkRobot_HinfDesign.mat','Delta','DelNorm');
 
 %% LQR Design
 % Finite-Horizon LQR State-Feedback Design
@@ -25,7 +27,8 @@ fprintf('=================================================\n');
 
 % Nominal Closed-Loop Loop L2 to E Gain
 % Expeced 0.05509 (MS Thesis)
-[gCLNom,dCL,infoCL] = tvnorm(Tlqr(1:2,:),2,tvnopt);
+NE = 2;
+[gCLNom,dCL,infoCL] = tvnorm(Tlqr(1:2,:),NE,tvnopt);
 fprintf(' Bounds on Nominal CL Gain = [%4.4f, %4.4f] \n',...
     gCLNom(1),gCLNom(2));
 dNorm = 5;
@@ -77,7 +80,7 @@ plot(etabar(1),etabar(2),'k-.', etaNL(1),etaNL(2),'r', ...
 xlabel('\theta_1 (rad)');
 ylabel('\theta_2 (rad)');
 legend('Trim','NL','Lin');
-title(sprintf('Simulations with ||dCL||=%.3f',dNorm))
+title(sprintf('Simulations with ||dCL|| = %.3f',dNorm))
 
 %% Robust Closed-Loop Analysis
 fprintf('=================================================\n');
@@ -101,8 +104,13 @@ Tnom = Lscl*Tnom*Rscl;
 % Robust (worst-case) L2 to E Gain
 % Expected 0.062 (MS Thesis)
 % Deprecated Syntax: [gCL,wcinfoCL] = tvrobL2toE(Tnom,v,p,Tf,tlmi,tSp);
-Tnom.UserData = IQCParam;
-[gCL,wcinfoCL] = tvwcgain(Tnom,2,tvwcopt);
+[gCL,wcinfoCL] = tvwcgain(Tnom,Delta,NE,tvwcopt);
+
+% Try different horizons and compute worst-case gain
+% for Horizon = 1:1:4
+%     Temp = tvsplit(Tnom,Horizon);
+%     gWCG = tvwcgain(Temp,Delta,2,tvwcopt);
+% end
 
 %% Evaluate closed-loop with a specific bad perturbation
 
@@ -120,7 +128,7 @@ Tbad = lft( DeltaBad ,Tnom);
 % Evaluate closed-loop gain of Tbad
 % Gain lower bound should be close to 0.0575
 fprintf('\n ---- Evaluate "Bad" Perturbation \n');
-[gWC,dWC] = tvnorm(Tbad,2,tvnopt);
+[gWC,dWC] = tvnorm(Tbad,NE,tvnopt);
 fprintf('\n Closed-loop gain with worst-case Delta = %4.4f',gWC(1))
 
 % Simulate linear system and evaluate gain
@@ -131,10 +139,10 @@ fprintf('\n Closed-loop gain with worst-case Delta and dist. = %4.4f\n',gWC2)
 %% Simulate and Plot Trajectories / Norm Bound
 
 % Disturbances are scaled to have norm ||d|| = dL2norm
-dL2norm = 5;
+dNorm = 5;
 
 % e(T) ball: Center at final (trim) angles with radius gCL*dL2norm
-rBall = gCL*dL2norm;
+rBall = gCL*dNorm;
 cBall = tvsubs( etabar(1:2), Tf);
 NBall = 50;
 aBall = linspace(0,2*pi,NBall);
@@ -173,7 +181,7 @@ for i = 1:numel(d)
     
     % Disturbances are scaled to have norm ||d||=dL2norm
     di = d{i};
-    di = di*dL2norm/tvnorm(di);
+    di = di*dNorm/tvnorm(di);
     
     % Simulate linear system
     yi = tvlsim(Tbad,di,tvopt);
@@ -211,11 +219,34 @@ figure(f1);
 grid on;
 xlabel('\theta_1 (rads)');
 ylabel('\theta_2 (rads)');
-title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
+title(['Closed-Loop with ||d|| <= ' num2str(dNorm)]);
 hold off;
 
 figure(f2);
 grid on;
 xlabel('x (m)'); ylabel('y (m)');
-title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
+title(['Closed-Loop with ||d|| <= ' num2str(dNorm)]);
 hold off;
+
+%% Plot Nominal Trajectory
+figure; clf; hold on;
+plot(2*pi+etabar(1), etabar(2), 'k');
+plot(2*pi+etaf(1), etaf(2),'ko','MarkerFaceColor','w');
+xlabel('\theta_1 (rads)');
+ylabel('\theta_2 (rads)');
+grid on;axis equal
+set(gca, 'LooseInset', get(gca, 'TightInset'));
+axis([0 5, -3.5 0.5]);
+title('Nominal Trajectory')
+
+%% Plot Nominal Trajectory with Cyan Bound
+figure; clf; hold on;
+patch(th1Ball,th2Ball,'c');
+plot(2*pi+etabar(1), etabar(2), 'k');
+plot(2*pi+etaf(1), etaf(2),'ko','MarkerFaceColor','w');
+xlabel('\theta_1 (rads)');
+ylabel('\theta_2 (rads)');
+grid on;axis equal
+set(gca, 'LooseInset', get(gca, 'TightInset'));
+axis([0 5, -3.5 0.5]);
+title('Nominal Trajectory With Terminal Euclidean Norm Bound')

@@ -17,34 +17,39 @@ CLrA = CLr([1 3 4],[1 2]);
 
 % Worst-case gain
 tvwcopt.ULevel = beta;
-CLnA.UserData = Gunc.UserData;
-CLrA.UserData = Gunc.UserData;
-[wcgUB1,info1] = tvwcgain(CLnA,NE,tvwcopt);
-[wcgUB2,info2] = tvwcgain(CLrA,NE,tvwcopt);
+[wcgUB1,info1] = tvwcgain(CLnA,Delta,NE,tvwcopt);
+[wcgUB2,info2] = tvwcgain(CLrA,Delta,NE,tvwcopt);
 
 %% Sample across uncertainties
-N = length(Delta);
-g1 = zeros(N,1);
-g2 = zeros(N,1);
-dWc1 = cell(N,1);
-dWc2 = cell(N,1);
-parfor i = 1:N
-    [gE1,dWc1{i}] = tvnorm(lft(Delta{i},CLnA),NE,tvnopt);
-    g1(i) = gE1(1);
-    fprintf(' wcg1:%.3f\n',g1(i));
+NSample = length(UncSample);
+g1 = zeros(NSample,1);
+g2 = zeros(NSample,1);
+dWc1 = cell(NSample,1);
+dWc2 = cell(NSample,1);
+parfor i = 1:NSample
+    [gE1,dWc1{i}] = tvnorm(lft(UncSample{i},CLnA),NE,tvnopt);
+    g1(i) = gE1(1);    
     
-    [gE2,dWc2{i}] = tvnorm(lft(Delta{i},CLrA),NE,tvnopt);
+    [gE2,dWc2{i}] = tvnorm(lft(UncSample{i},CLrA),NE,tvnopt);
     g2(i) = gE2(1);
-    fprintf(' wcg2:%.3f\n',g2(i));
+    
+    fprintf(' wcg1:%.3f, wcg2:%.3f\n',g1(i),g2(i));
 end
 
 % Find worst-case uncertainty
 [wcgLB1,id1] = max(g1);
 [wcgLB2,id2] = max(g2);
-Deltawc1 = Delta{id1};
-Deltawc2 = Delta{id2};
+Deltawc1 = UncSample{id1};
+Deltawc2 = UncSample{id2};
+
+% Display results
 fprintf(' Nominal Controller Closed Loop Worst-Case Gain: [%.4f,%.4f]\n',wcgLB1,wcgUB1);
+fprintf(' Worst-Case Delta:\n');
+Deltawc1 %#ok<*NOPTS>
+
 fprintf(' Robust Controller Closed Loop Worst-Case Gain: [%.4f,%.4f]\n',wcgLB2,wcgUB2);
+fprintf(' Worst-Case Delta:\n');
+Deltawc2
 
 % Normalize worst-case disturbance
 dScl = 1;
