@@ -239,6 +239,7 @@ if DispFlag
 end
 wcinfo = info{idx};
 wcinfo.AllIter = info;
+wcinfo.TotalTime = tTotal;
 end
 
 %% LOCAL Function: evalP
@@ -316,7 +317,7 @@ function [LMI,eLMI] = evalLMI(G,Delta,P,Pdot,g,LMIinfo,NE)
 [Nw,Nv] = size(Delta);
 [Type,Psi] = ltvutil.iqcEngine(Delta);
 tDense = G.Time;
-if isequal(Type,2)
+if isequal(Type,1)
     X11 = evalt(LMIinfo.X11,tDense); %#ok<*UNRCH>
 else
     X11 = LMIinfo.X11;

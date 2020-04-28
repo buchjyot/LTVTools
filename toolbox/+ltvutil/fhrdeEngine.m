@@ -29,7 +29,7 @@ gUpp = Opt.Bounds(2);
 [Nv,Nw] = size(Delta);
 [Type,Psi] = ltvutil.iqcEngine(Delta);
 X11 = LMIinfo.X11;
-if isequal(Type,2)
+if isequal(Type,1)
     % For time-varying X11 we need interpolation
     X11 = evalt(tvmat(X11),G.Time);
 end

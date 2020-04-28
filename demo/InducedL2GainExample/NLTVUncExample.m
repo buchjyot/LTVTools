@@ -50,8 +50,8 @@ save(mfilename,'gfinal1','gfinal2','wcinfo1','wcinfo2','Tall');
 
 %% Plot Data
 load('NLTVUncExample.mat','gfinal1','gfinal2','Tall')
-plot(Tall,gfinal1,'-or',Tall,gfinal2,'-b^','LineWidth',2);
-xlabel('Horizon (sec)');title('Worst-case Induced L_2 Gain Upper Bound');
-ylabel('Induced L_2 Gain');xlim([Tall(1) Tall(end-1)]);
-legend('$\Delta \in \mathcal{S}_{TV}$','$\Delta \in \mathcal{S}_{ML}$','Location','southeast','interpreter','latex');
+plot(Tall,gfinal1,'--or',Tall,gfinal2,'-b^','LineWidth',2);
+xlabel('Horizon (sec)','FontSize',14);title('Worst-case Induced L_2 Gain Upper Bound','FontSize',14);
+ylabel('Induced L_2 Gain','FontSize',14);xlim([Tall(1) Tall(end-1)]);
+legend('$\Delta \in \mathcal{S}_{TV}$','$\Delta \in \mathcal{S}_{ML}$','Location','southeast','interpreter','latex','FontSize',14);
 grid on; box on;
