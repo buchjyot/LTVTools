@@ -9,7 +9,7 @@
 
 %% RunMe
 % This is a main file that user can run to reproduce the example results
-for sequence = 8
+for sequence = 8 % [4,5,6,7,8] % Reproduce results of [2]
     
     switch sequence
         case 0
