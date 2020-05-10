@@ -72,9 +72,6 @@ for i = 1:MaxIter
         fprintf('Iter: %d, l2norm: %.3f\n',i,l2n(i));
     end
     
-    % Alignment Condition
-    Y(:,i) = Y(:,i)/l2n(i);
-    
     % Stopping Condition (If input signal is stationary then stop)
     if (i > 1) && (i < MaxIter-1)
         if tvnorm(U(:,i)-U(:,i-1)) <= StopTol
@@ -82,12 +79,14 @@ for i = 1:MaxIter
         end
     end
     
+    % Alignment Condition
+    Y(:,i) = Y(:,i)/l2n(i);
+    
     % Costate Equation
     U(:,i+1) = tvlsim(Ga,Y(:,i),tvsopt2);
     
     % Alignment Condition
     U(:,i+1) = U(:,i+1)/tvnorm(U(:,i+1));
-    
 end
 tcomp = toc(t1);
 
