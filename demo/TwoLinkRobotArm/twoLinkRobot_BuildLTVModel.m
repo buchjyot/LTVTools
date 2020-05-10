@@ -167,17 +167,14 @@ DelNorm = 0.8;
 Delta = udyn('Delta',[Nw Nv],'UserData',[0,-10,1]); % M11 > 0 Constrint
 
 %% Settings for Simulink Model
-VSS_INPUT_UNCERTAINTY_NONE            = Simulink.Variant('VSS_INPUT_UNCERTAINTY_MODE==0');
-VSS_INPUT_UNCERTAINTY_SECOND_CHANNEL  = Simulink.Variant('VSS_INPUT_UNCERTAINTY_MODE==1');
-
-% Set Variant to Nominal, i.e. No Uncertainty
-VSS_INPUT_UNCERTAINTY_MODE = 0;
-
 % Initial conditions for estimator
 xhat0 = [0;0;0;0];
 
 % Default settings for noise
 NoisePowerSim = [0;0];
+
+% Set DeltaSim
+DeltaSim = ss(0,0,0,0);
 
 % Turn extrapolation warning back to on
 warning('on','ltvtools:evalt:extrapolate');

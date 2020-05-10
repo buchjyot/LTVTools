@@ -36,7 +36,7 @@ dCL = dNorm*dCL/tvnorm(dCL);
 %% Closed-Loop Linear and Nonlinear Simulations
 
 % Linear Simulation with Worst-Case Disturbance
-[yLin,xLin] = tvlsim(Tlqr(1:2,:),dCL,tvopt);
+[yLin,xLin] = tvlsim(Tlqr(1:2,:),dCL,tvspt);
 yf = tvsubs(yLin,yLin.Time(end));
 gLin = norm(yf) / tvnorm(dCL);
 fprintf(' Nominal CL Gain Linear Sim = %4.4f\n',gLin);
@@ -131,7 +131,7 @@ fprintf('\n ---- Evaluate "Bad" Perturbation \n');
 fprintf('\n Closed-loop gain with worst-case Delta = %4.4f',gWC(1))
 
 % Simulate linear system and evaluate gain
-yBad = tvlsim(Tbad,dWC,tvopt);
+yBad = tvlsim(Tbad,dWC,tvspt);
 gWC2 = norm( tvsubs(yBad,Tf) ) / tvnorm(dWC);
 fprintf('\n Closed-loop gain with worst-case Delta and dist. = %4.4f\n',gWC2)
 
@@ -183,7 +183,7 @@ for i = 1:numel(d)
     di = di*dNorm/tvnorm(di);
     
     % Simulate linear system
-    yi = tvlsim(Tbad,di,tvopt);
+    yi = tvlsim(Tbad,di,tvspt);
     
     % Superimpose the trim trajectory to obtain actual angles
     % (See twoLinkRobot_BuildLTVModel for trim trajectory construction)

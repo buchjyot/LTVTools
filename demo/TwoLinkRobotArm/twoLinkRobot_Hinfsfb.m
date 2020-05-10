@@ -37,7 +37,7 @@ dNorm = 0.1;
 dCL = dNorm*dWc/tvnorm(dWc);
 
 % Linear Simulation with Worst-Case Disturbance
-[yLin,xLin] = tvlsim(CLsfb(3:4,:),dCL,tvopt);
+[yLin,xLin] = tvlsim(CLsfb(3:4,:),dCL,tvspt);
 yf = tvsubs(yLin,yLin.Time(end));
 gLin = norm(yf) / tvnorm(dCL);
 fprintf(' Nominal CL Gain Linear Sim = %4.4f\n',gLin);

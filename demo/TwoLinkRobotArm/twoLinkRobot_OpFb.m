@@ -57,7 +57,7 @@ dCL = dNorm*dCL/tvnorm(dCL);
 %% Closed-Loop Linear and Nonlinear Simulations
 
 % Linear Simulation with Worst-Case Disturbance
-[yLin,xLin] = tvlsim(TOpFb,dCL,tvnopt);
+[yLin,xLin] = tvlsim(TOpFb,dCL,tvspt);
 yf = tvsubs(yLin,yLin.Time(end));
 gLin = norm(yf) / tvnorm(dCL);
 fprintf(' Nominal CL Gain Linear Sim = %4.4f\n',gLin);

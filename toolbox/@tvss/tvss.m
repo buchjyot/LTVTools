@@ -498,15 +498,15 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         end
         
         function varargout = size(obj,varargin)
-                if obj.isTimeInvariant
-                    [varargout{1:max(nargout,1)}] = size( obj.Data, varargin{:});
-                else
-                    Data = obj.Data; %#ok<*PROPLC>
-                    
-                    nd = ndims(Data)-3;
-                    id = repmat({':'},1,nd);
-                    [varargout{1:max(nargout,1)}] = size( Data(:,:,id{:},1), varargin{:});
-                end
+            if obj.isTimeInvariant
+                [varargout{1:max(nargout,1)}] = size( obj.Data, varargin{:});
+            else
+                Data = obj.Data; %#ok<*PROPLC>
+                
+                nd = ndims(Data)-3;
+                id = repmat({':'},1,nd);
+                [varargout{1:max(nargout,1)}] = size( Data(:,:,id{:},1), varargin{:});
+            end
         end
         
         function [GT,Ti,Tdot] = ss2ss(G,T)

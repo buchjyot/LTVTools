@@ -108,6 +108,7 @@ COSTfh = @(GAM) deal(Qc,Rc(GAM),Sc,Fc);
 %% Lower Bound Phase
 % Require R(t,g)=R0(t)-g^2*R1(t)<0 for all t in [0,T]
 % XXX This assumes the time grid is sufficiently fine.
+t1 = tic;
 evmax = tvmax(eig(R0));
 gLow = sqrt(evmax);
 gLow = max(gLow,Opt.Bounds(1));
@@ -242,21 +243,6 @@ if isfinite(gUpp)
     end
 end
 
-%% Store Final Result
-g = [gLow,gUpp];
-
-info.Lower.Gain = gLow;
-info.Lower.P = PLow;
-info.Lower.Pdot = PdotLow;
-info.Lower.sol = solLow;
-
-info.Upper.Gain = gUpp;
-info.Upper.P = PUpp;
-info.Upper.Pdot = PdotUpp;
-info.Upper.sol = solUpp;
-
-info.RDEcnt = RDEcnt;
-
 %% Construct Worst-Case Input
 % The construction is based on the two-point boundary value problem
 % (TPBVP) related to the (Q,S,R,F) cost.  This particular implementation
@@ -303,4 +289,21 @@ if nout>=2 && ~isempty(PLow)
     % Normalize worst-case disturbance to have norm 1
     d = d/tvnorm(d);
 end
+
+%% Store Final Result
+tTotal = toc(t1);
+g = [gLow,gUpp];
+
+info.Lower.Gain = gLow;
+info.Lower.P    = PLow;
+info.Lower.Pdot = PdotLow;
+info.Lower.sol  = solLow;
+
+info.Upper.Gain = gUpp;
+info.Upper.P    = PUpp;
+info.Upper.Pdot = PdotUpp;
+info.Upper.sol  = solUpp;
+
+info.TotalBisections = RDEcnt;
+info.TotalTime       = tTotal;
 end
