@@ -73,7 +73,12 @@ end
 
 %% Build Cost Function Matrices
 [A,B] = ssdata(G);
-[~,Nd] = size(B);
+[Nx,Nd] = size(B);
+
+% If Nx == 0 then error out
+if isequal(Nx,0)
+    error('The state dimention must be nonzero.');
+end
 
 % We do not support discriptor systems currently
 E = [];

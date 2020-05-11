@@ -2,6 +2,7 @@ classdef (CaseInsensitiveProperties = true, ...
         TruncatedProperties = true) tvstepOptions < tvodeOptions & ltioptions.step
     
     properties
+        % Time at which the step input starts
         StepTime = 0;
     end
     

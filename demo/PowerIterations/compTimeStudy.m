@@ -100,4 +100,4 @@ ylabel('Average Number of Iterations');
 legend('Bisections','Power Iterations');
 
 % Maximum error in lower bound
-max(gLB - tvnLB)
+max(abs((gLB - tvnLB)./max(gLB,tvnLB)))

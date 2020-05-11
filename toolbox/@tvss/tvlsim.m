@@ -15,7 +15,18 @@ function [Y,X] = tvlsim(G,U,varargin)
 narginchk(2,4);
 nin = nargin;
 
+% System Data
+[A,B,C,D] = ssdata(G);
 Nx = order(G);
+
+% If Nx = 0 then return Y = D*U;
+if isequal(Nx,0)
+    Y = evalt(D,U.Time)*U;
+    X = [];
+    return;
+end
+
+% Read Options
 Opt = [];x0 = [];
 switch nin
     case 3
@@ -29,10 +40,8 @@ switch nin
         Opt = varargin{2};
 end
 
-% If empty then set to default
+% Assume zero boundary conditions if user did not provide any
 if isempty(x0)
-    % Assume zero boundary conditions if user did not provided any i.e.
-    % tvlsim(G,U,[],Opt)
     x0 = zeros(Nx,1);
 end
 if isempty(Opt)
@@ -41,48 +50,137 @@ end
 OdeSolverFh = str2func(Opt.OdeSolver);
 OdeOpt = Opt.OdeOptions;
 
-% Make sure the system (G) is defined on the given input (U) horizon 
-[A,B,C,D] = ssdata(G);
+% Make sure the system (G) is defined on the given input (U) horizon
 ltvutil.verifyFH(G,U);
 [GT0,GTf] = getHorizon(G);
 [UT0,UTf] = getHorizon(U);
-% NOTE: The following code allows the simulation to happen in the subset of
-% the plant horizon, even if the input is only defined on part of the
-% horizon. Where the input is not defined, the "tvsubs" function used in
-% the LOCALderiv will extrapolate to zero.
+% NOTE: The following code allows the simulation to happen even if the
+% input is only defined on a part of the horizon.
 if any(UT0>GTf || UTf>GTf || UT0<GT0 || UTf<GT0)
     error('Input U must be defined on the subset of the system horizon.');
 end
 
-% Tspan
-if isequal(Opt.Type,'ForwardInTime')
-    Tspan = [GT0 GTf];
-else
-    Tspan = [GTf GT0];
+%% Tgrid
+% Integration time grid
+StepSize = Opt.StepSize;
+switch StepSize
+    case 'Default'
+        % Similar to MATLAB command lsim, this 'Default' step size assumes
+        % integration to be performed on the time grid specified by U.Time
+        % The returned output is also in the same time grid as U.Time.
+        Tgrid = U.Time;
+        
+    case 'Auto'
+        % Time grid is automatically determined by ODE solver, we only
+        % provide the span of integration
+        Tgrid = [GT0,GTf];
+        
+    otherwise
+        % This means StepSize is "Fixed" to the specified double value
+        Tgrid = GT0:StepSize:GTf;
+end
+
+% MATLAB command lsim does not allow backward simulation, whereas tvlsim
+% allows backward simulation if simulation "Type" option is specified as "BackwardInTime".
+if isequal(Opt.Type,'BackwardInTime')
+    Tgrid = flip(Tgrid);
 end
 
 %% Simulate System
-% Solve ODE
-odefh = @(t,x) LOCALderiv(t,x,A,B,U);
-[t,x] = OdeSolverFh(odefh,Tspan,x0,OdeOpt);
-
-% State vector X
-% TVMAT must have increasing time grid points 
-if isequal(Opt.Type,'ForwardInTime')
-    X = tvmat(x,t);
+% Specify ODE
+UseLinearInterp = isequal(G.InterpolationMethod,'Linear') && isequal(U.InterpolationMethod,'Linear');
+if UseLinearInterp
+    AB = [A B];
+    ABData = AB.Data;
+    ABTime = AB.Time;
+    ABDiff = diff(ABTime);
+    NABTime = numel(ABTime);
+    
+    UData = U.Data;
+    UTime = U.Time;
+    UDiff = diff(UTime);
+    NUTime = numel(UTime);
+    
+    odefh = @(t,x) LOCALderivLinInterp(t,x,ABTime,NABTime,ABDiff,ABData,...
+        UTime,NUTime,UDiff,UData);
 else
-    X = tvmat(flip(x),flip(t));
+    odefh = @(t,x) LOCALderiv(t,x,A,B,U);
 end
 
+% Solve ODE
+[t,x] = OdeSolverFh(odefh,Tgrid,x0,OdeOpt);
+
 %% Construct Outputs
+
+% State vector X
+% TVMAT must have increasing time grid points
+if isequal(Opt.Type,'BackwardInTime')
+    X = tvmat(flip(x),flip(t));
+else
+    X = tvmat(x,t);
+end
+
 [U1,C,D] = evalt(U,C,D,X.Time);
 Y = C*X+D*U1;
 
-% Return X and Y in terms of input U time grid
-% Discussed with Pete during 12/6/2019
-[X,Y] = evalt(X,Y,U.Time);
 
-%% LOCALderiv
 function xdot = LOCALderiv(t,x,A,B,U)
+%% LOCALderiv
 [At,Bt,ut] = tvsubs(A,B,U,t);
 xdot = At*x + Bt*ut;
+
+
+function xdot = LOCALderivLinInterp(t,x,ABTime,NABTime,ABDiff,ABData,...
+    UTime,NUTime,UDiff,UData)
+%% LOCALderivLinInterp
+% Eval AB(t)
+if t<=ABTime(end) && t>=ABTime(1)
+    % Within the horizon inclusive of boundary points
+    [k,alpha] = LOCALfindslotalpha(NABTime,ABTime,t,ABDiff);
+    if alpha==0
+        ABt = ABData(:,:,k);
+    else
+        ABt = (1-alpha)*ABData(:,:,k) + alpha*ABData(:,:,k+1);
+    end
+else
+    % Extrapolate to zeros if outside horizon
+    [nr,nc] = size(ABData(:,:,1));
+    ABt = zeros(nr,nc);
+end
+
+% Eval U(t)
+if t<=UTime(end) && t>=UTime(1)
+    % Within the horizon inclusive of boundary points
+    [k,alpha] = LOCALfindslotalpha(NUTime,UTime,t,UDiff);
+    if alpha==0
+        Ut = UData(:,:,k);
+    else
+        Ut = (1-alpha)*UData(:,:,k) + alpha*UData(:,:,k+1);
+    end
+else
+    % Extrapolate to zeros if outside horizon
+    [nr,nc] = size(UData(:,:,1));
+    Ut = zeros(nr,nc);
+end
+
+xdot = ABt*[x; Ut];
+
+
+function [k,alpha] = LOCALfindslotalpha(N,vec,val,dvec)
+%% LOCALfindslotalpha
+% N integer
+% vec 1-by-N (or N-by-1), sorted
+% val 1-by-1
+% dvec = diff(vec)
+
+k = max(find(val>=vec));   %#ok<MXFND> % don't follow advice - it is slower.
+if ~isempty(k)
+    if k<N
+        alpha = (val - vec(k))/dvec(k);
+    else
+        alpha = 0;
+    end
+else
+    k = 1;
+    alpha = 0;
+end

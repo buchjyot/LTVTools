@@ -1,11 +1,18 @@
 classdef (CaseInsensitiveProperties = true, ...
         TruncatedProperties = true) tvlsimOptions < tvodeOptions
     
-    % Options set for TVNORM
+    % Options set for TVLSIM
     
     properties
-        % Specify Type of Simulation
+        % Specify Type of Simulation [{'ForwardInTime'} | {'BackwardInTime'}].
         Type = 'ForwardInTime';
+        
+        % StepSize [{'Default} | {'Auto'} | {0.1}].
+        % Default: option uses the integration time grid as input time grid
+        % Auto   : time grid is determined by ODE solver
+        % 0.1    : time grid for integration is T0:0.1:Tf, where T0, Tf is
+        % plant horizon
+        StepSize = 'Default';
     end
     
     methods
@@ -34,6 +41,22 @@ classdef (CaseInsensitiveProperties = true, ...
                 error('The "Type" option must be set to ''ForwardInTime'' or ''BackwardInTime''.')
             end
             opt.Type = V;
+        end
+        
+        %% Specify StepSize
+        function opt = set.StepSize(opt,V)
+            switch class(V)
+                case 'char'
+                    V = ltipack.matchKey(V,{'Default','Auto'});
+                case 'double'
+                    % Do nothing
+                otherwise
+                    V = [];
+            end
+            if isempty(V)
+                error('The "StepSize" option must be set to ''Default'' or ''Auto'' or double scalar.')
+            end
+            opt.StepSize = V;
         end
         
     end

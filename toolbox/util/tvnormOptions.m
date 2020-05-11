@@ -4,7 +4,7 @@ classdef (CaseInsensitiveProperties = true, ...
     % Options set for TVNORM
     
     properties
-        % Display progress of computation [{'off'} | 'on'].
+        % Display progress of computation [{'off'} | {'on'}].
         Display = 'off';
         % Relative Tolerance for bisection
         RelTol = 1e-3;

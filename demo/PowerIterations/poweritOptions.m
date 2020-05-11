@@ -6,12 +6,15 @@ classdef (CaseInsensitiveProperties = true, ...
     properties
         % Display progress of computation [{'off'} | {'on'}].
         Display = 'off';
+        
         % Stopping Tolerance
-        StopTol = 1e-3;
+        StopTol = 1e-2;
+        
         % Maximum Iterations
-        MaxIter = 100;
-        % Grid Points
-        Ngrid = 500;
+        MaxIter = 500;       
+        
+        % StepSize
+        StepSize = 'Auto';
     end
     
     methods
@@ -45,7 +48,7 @@ classdef (CaseInsensitiveProperties = true, ...
         %% Specify StopTol
         function opt = set.StopTol(opt,V)
             if isa(V,'double') && isscalar(V) && V >= 0
-                opt.RelTol = V;
+                opt.StopTol = V;
             else
                 error('The "StopTol" option must be a non-negative scalar.')
             end
@@ -58,15 +61,23 @@ classdef (CaseInsensitiveProperties = true, ...
             else
                 error('The "MaxIter" option must be a non-negative scalar.')
             end
-        end
+        end        
         
-        %% Specify Bounds
-        function opt = set.Ngrid(opt,V)
-            if isa(V,'double') && isscalar(V) && V >= 0
-                opt.Ngrid = round(V);
-            else
-                error('The "Ngrid" option must be a non-negative scalar.')
+        %% Specify StepSize
+        function opt = set.StepSize(opt,V)
+            switch class(V)
+                case 'char'
+                    V = ltipack.matchKey(V,{'Auto'});
+                case 'double'
+                    % Do nothing
+                otherwise
+                    V = [];
             end
+            if isempty(V)
+                error('The "StepSize" option must be set to ''Auto'' or double scalar.')
+            end
+            opt.StepSize = V;
         end
+       
     end
 end
