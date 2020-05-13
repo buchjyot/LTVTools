@@ -43,7 +43,7 @@ switch class(G)
         T0 = tnom(1);
         Tf = tnom(end);
         
-        % I/O Sizes        
+        % I/O Sizes
         io  = getlinio(G);
         Nu = evalin('base','size(simin,2)-1');
         
@@ -70,14 +70,14 @@ switch class(G)
     case 'char'
         % Simulink Model
         SimulateStateEquations      = @(Ui) LOCALSim(G,Tgrid,Ui);
-        SimulateCostateEquations    = @(Ui,Yi) tvlsim(LOCALAdjoint(G,io,Ui),Yi,tvsopt2);
+        SimulateCostateEquations    = @(Yi) tvlsim(LOCALAdjoint(G,io,Yi.Time),Yi,tvsopt2);
         U{1}                        = validateInitialInput(Opt,tnom,Nu);
         
     case 'tvss'
         % LTV Model
         SimulateStateEquations      = @(Ui) tvlsim(G,Ui,tvsopt1);
         Ga                          = G';
-        SimulateCostateEquations    = @(Ui,Yi) tvlsim(Ga,Yi,tvsopt2);
+        SimulateCostateEquations    = @(Yi) tvlsim(Ga,Yi,tvsopt2);
         U{1}                        = validateInitialInput(Opt,G.Time,Nu);
 end
 
@@ -128,7 +128,7 @@ for i = 1:MaxIter
     end
     
     % Costate Equation
-    U{i+1} = SimulateCostateEquations(U{i},Y{i});
+    U{i+1} = SimulateCostateEquations(Y{i});
     
     % Alignment Condition for U
     U{i+1} = U{i+1}/tvnorm(U{i+1});
@@ -144,9 +144,8 @@ info.TotalIter  = i;
 info.TotalTime  = tcomp;
 end
 
-function Ga = LOCALAdjoint(model,io,Ui)
+function Ga = LOCALAdjoint(model,io,tSnapShot)
 %% Linearize Dynamics and Construct Adjoint System
-tSnapShot               = Ui.Time;
 [linsys,linop]          = linearize(model,io,tSnapShot);
 Glin                    = tvss(linsys,tSnapShot);
 [dfdx,dfdu,dgdx,dgdu]   = ssdata(Glin);
