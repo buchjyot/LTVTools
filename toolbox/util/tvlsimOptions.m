@@ -8,7 +8,7 @@ classdef (CaseInsensitiveProperties = true, ...
         Type = 'ForwardInTime';
         
         % StepSize [{'Default} | {'Auto'} | {0.1}].
-        % Default: option uses the integration time grid as input time grid
+        % Default: option uses input time grid as integration time grid
         % Auto   : time grid is determined by ODE solver
         % 0.1    : time grid for integration is T0:0.1:Tf, where T0, Tf is
         % plant horizon

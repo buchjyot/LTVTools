@@ -1,15 +1,17 @@
 function [Y,X] = tvlsim(G,U,varargin)
 %% TVLSIM Simulate the response of a time-varying system
 %
+% Possible Syntex:
 % [Y,X] = tvlsim(G,U)
-% [Y,X] = tvlsim(G,U,x0)
 % [Y,X] = tvlsim(G,U,Opt)
+% [Y,X] = tvlsim(G,U,x0)
 % [Y,X] = tvlsim(G,U,x0,Opt)
 %
 % Where, G is a TVSS
 %        U is a TVMAT
+%        [Optional] T is a time grid or time span of integration
 %        [Optional] x0 is initial condition or terminal condition, default to 0
-%        [Optional] Opt is tvlsimOptions
+%        [Optional] Opt is tvodeOptions
 
 %% Input Processing
 narginchk(2,4);
@@ -26,7 +28,7 @@ if isequal(Nx,0)
     return;
 end
 
-% Read Options
+% Read Varargins
 Opt = [];x0 = [];
 switch nin
     case 3
@@ -54,6 +56,7 @@ OdeOpt = Opt.OdeOptions;
 ltvutil.verifyFH(G,U);
 [GT0,GTf] = getHorizon(G);
 [UT0,UTf] = getHorizon(U);
+
 % NOTE: The following code allows the simulation to happen even if the
 % input is only defined on a part of the horizon.
 if any(UT0>GTf || UTf>GTf || UT0<GT0 || UTf<GT0)
@@ -73,11 +76,11 @@ switch StepSize
     case 'Auto'
         % Time grid is automatically determined by ODE solver, we only
         % provide the span of integration
-        Tgrid = [GT0,GTf];
+        Tgrid = [UT0,UTf];
         
     otherwise
         % This means StepSize is "Fixed" to the specified double value
-        Tgrid = GT0:StepSize:GTf;
+        Tgrid = UT0:StepSize:UTf;
 end
 
 % MATLAB command lsim does not allow backward simulation, whereas tvlsim
