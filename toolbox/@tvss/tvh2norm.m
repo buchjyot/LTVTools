@@ -46,25 +46,9 @@ function [out,info] = tvh2norm(G,varargin)
 
 %% Input Processing
 narginchk(1,3);
-nin = nargin;
 
 % Obtain default Opt
-switch nin
-    case 1
-        Opt = tvodeOptions;
-        NE = 0;
-    case 2
-        if isa(varargin{1},'tvodeOptions')
-            Opt = varargin{1};
-            NE = 0;
-        else
-            Opt = tvodeOptions;
-            NE = varargin{1};
-        end
-    case 3
-        NE = varargin{1};
-        Opt = varargin{2};
-end
+[NTf,Opt] = LOCALInputParser(varargin);
 
 % Check Feedthrough condition
 [~,~,~,D] = ssdata(G);
@@ -79,51 +63,45 @@ end
 ltvutil.verifyFH(G);
 [T0,Tf] = getHorizon(G);
 
-% Size of G
+% Sizes
 NY = size(G,1);
+NH2 = 1:NY-NTf;    % Integral cost outputs
+NTf = NY-NTf+1:NY; % Terminal cost outputs
 
-% Integral cost outputs
-NH2 = 1:NY-NE;
+% Extract Terminal Part
+GTerm = tvss(G.Data(NTf,:),G.Time,G.InterpolationMethod);
 
-% Terminal cost outputs
-NTf = NY-NE+1:NY;
+% Extract Integral Part
+GH2 = tvss(G.Data(NH2,:),G.Time,G.InterpolationMethod);
 
-% Compute Combined Cost
-[IntegralCost,IntegralInfo] = LOCALComputeH2CostOverTheHorizon(G,NH2,T0,Tf,Opt);
-[TerminalCost,TerminalInfo] = LOCALComputeH2CostAtTerminalTime(G,NTf,T0,Tf,Opt);
-
-%% Final Output
+%% Compute H2 Cost
+t1 = tic;
 if ~isempty(NTf) && ~isempty(NH2)
     % User wants to compute combined cost
-    % XXX: Need to consider time normalization for the following equation?
+    [IntegralCost,IntegralInfo] = LOCALComputeH2CostOverTheHorizon(GH2,T0,Tf,Opt);
+    [TerminalCost,TerminalInfo] = LOCALComputeH2CostAtTerminalTime(GTerm,T0,Tf,Opt);
+    % XXX: Consider time normalization for the following equation?
     % i.e. devide by 2?
     out = sqrt((IntegralCost + TerminalCost)/2);
     info = struct('IntegralInfo',IntegralInfo,'TerminalInfo',TerminalInfo);
 elseif ~isempty(NTf)
     % User wants to compute Terminal cost
+    [TerminalCost,TerminalInfo] = LOCALComputeH2CostAtTerminalTime(GTerm,T0,Tf,Opt);
     out = sqrt(TerminalCost);
     info = TerminalInfo;
 elseif ~isempty(NH2)
     % User wants to compute Integral cost
+    [IntegralCost,IntegralInfo] = LOCALComputeH2CostOverTheHorizon(GH2,T0,Tf,Opt);
     out = sqrt(IntegralCost);
     info = IntegralInfo;
 end
+info.TotalTime = toc(t1);
 end
 
+function [IntegralCost,IntegralInfo] = LOCALComputeH2CostOverTheHorizon(GH2,T0,Tf,Opt)
 %% LOCALComputeH2CostOverTheHorizon
-function [IntegralCost,IntegralInfo] = LOCALComputeH2CostOverTheHorizon(G,NH2,T0,Tf,Opt)
 % This function computes the H2 Norm over the horizon and uses an integral
-% version of the defination from Green and Limebeer
-
-% Init
-IntegralCost = 0;
-IntegralInfo = struct;
-
-% Extract H2 part
-GH2 = tvss(G.Data(NH2,:),G.Time,G.InterpolationMethod);
-if isempty(GH2)
-    return;
-end
+% version of the definition from Green and Limebeer
 
 % Compute Integral of a trace i.e. (1/Tf-T0) integral_0toT trace(C(t)*P(t)*C'(t))
 [~,~,CH2,~] = ssdata(GH2);
@@ -138,25 +116,18 @@ IntegralInfo.Variance = Pt;  % Output variance as a function of time
 IntegralInfo.Gramian = GcH2; % Gramian as a function of time
 end
 
+function [TerminalCost,TerminalInfo] = LOCALComputeH2CostAtTerminalTime(GTerm,~,Tf,Opt)
 %% LOCALComputeH2CostAtTerminalTime
-function [TerminalCost,TerminalInfo] = LOCALComputeH2CostAtTerminalTime(G,NTf,~,Tf,Opt)
 % This function computes the terminal H2 norm which only uses the final
 % time variance.
 
-% Init
-TerminalCost = 0;
-TerminalInfo = struct;
-
-% Extract Terminal Part
-GTerm = tvss(G.Data(NTf,:),G.Time,G.InterpolationMethod);
-if isempty(GTerm)
-    return;
-end
-
-% Compute Trace
+% Compute Gramian
 [~,~,CTerm,~] = ssdata(GTerm);
 [GcTerm,~,TerminalInfo]  = tvgram(GTerm,'c',Opt);
-[CTerm,GcTerm] = evalt(CTerm,GcTerm,union(CTerm.Time,GcTerm.Time));
+
+% Compute Trace
+tUnion = union(CTerm.Time,GcTerm.Time);
+[CTerm,GcTerm] = evalt(CTerm,GcTerm,tUnion);
 Pt = CTerm*GcTerm*CTerm';
 TerminalVariance = tvsubs(Pt,Tf);
 TerminalCost = trace(TerminalVariance);
@@ -165,4 +136,23 @@ TerminalCost = trace(TerminalVariance);
 TerminalInfo.Variance = Pt;    % Output variance as a function of time
 TerminalInfo.Gramian = GcTerm; % Gramian as a function of time
 TerminalInfo.TerminalVariance = TerminalVariance;
+end
+
+function [NTf,Opt] = LOCALInputParser(V)
+%% LOCALInputParser
+
+% Defaults
+NTf = 0;
+Opt = tvodeOptions;
+
+% Identify distinct input arguments
+V1 = V(cellfun(@(x) isa(x,'double'),V));
+if ~isempty(V1)
+    NTf = V1{1};
+end
+
+V2 = V(cellfun(@(x) isa(x,'tvodeOptions'),V));
+if ~isempty(V2)
+    Opt = V2{1};
+end
 end

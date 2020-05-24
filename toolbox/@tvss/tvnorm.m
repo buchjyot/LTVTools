@@ -118,11 +118,6 @@ evmax = tvmax(eig(R0));
 gLow = sqrt(evmax);
 gLow = max(gLow,Opt.Bounds(1));
 
-% Display
-if DispFlag
-    fprintf(' Lower Bound = %4.3f\n',gLow);
-end
-
 %% Upper Bound Phase
 PUpp = []; PdotUpp = []; solUpp = [];
 PLow = []; PdotLow = []; solLow = [];
@@ -193,21 +188,13 @@ else
             fprintf([' Could not find a finite upper bound.' ...
                 ' Infeasible at gTry = %4.1f\n'],gUpp);
         end
-        gUpp = inf;
-    else
-        if DispFlag
-            fprintf(' Lower Bound = %4.3f \t Upper Bound = %4.3f\n',...
-                gLow,gUpp);
-        end
+        gUpp = inf;       
     end
-end
-
-if DispFlag
-    fprintf(' Upper Bound = %4.3f\n',gUpp);
 end
 
 %% Bisection Phase
 if DispFlag
+    fprintf(' Lower Bound = %4.3f \t Upper Bound = %4.3f\n',gLow,gUpp);
     fprintf(' ### Starting Bisection Phase:\n');
 end
 AbsTol = Opt.AbsTol;

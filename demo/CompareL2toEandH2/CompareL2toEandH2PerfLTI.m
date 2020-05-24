@@ -111,16 +111,16 @@ switch plant_case
     case {1,3}
         % Plot Gain vs Horizons
         figure;clf;
-        plot(Tf,cellfun(@(x) x(2), gE),'*b-',Tf,gH2,'rs-.');
-        xlabel('Horizon (T) (sec)')
-        ylabel('Performance Metric');
+        plot(Tf,cellfun(@(x) x(2), gE),'*b-',Tf,gH2,'rs--');
+        xlabel('Horizon (T) (sec)','FontSize',14)
+        ylabel('Performance Metric','FontSize',14);
         grid on;box on;
         legend('$\|G\|_{E,[0,T]}$','$\|G\|_{H_2,[0,T]}$','interpreter','latex','Location','southeast','FontSize',14);
         ylim([0 1.8])
         
         % Plot Computational Time
         figure;clf;
-        plot(Tf,t1,'*b-',Tf,t2,'rs-.');
+        plot(Tf,t1,'*b-',Tf,t2,'rs--');
         xlabel('Horizon (T) (sec)')
         ylabel('Computational Time (sec)');
         legend('$t_{E}$','$t_{H_2}$','interpreter','latex','Location','northwest','FontSize',14);
@@ -129,7 +129,7 @@ switch plant_case
     case 2
         % Gain vs Horizons
         figure;clf;
-        plot(Tf,cellfun(@(x) x(2), gE),'*b-',Tf,gH2,'rs-.');
+        plot(Tf,cellfun(@(x) x(2), gE),'*b-',Tf,gH2,'rs--');
         xlabel('Horizon (T) (sec)')
         ylabel('Performance Metric');
         grid on;box on;
@@ -138,7 +138,7 @@ switch plant_case
         
         % Computational Time
         figure;clf;
-        plot(Tf,t1,'*b-',Tf,t2,'rs-.');
+        plot(Tf,t1,'*b-',Tf,t2,'rs--');
         xlabel('Horizon (T) (sec)')
         ylabel('Computational Time (s)');
         grid on;box on;

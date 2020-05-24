@@ -1,10 +1,10 @@
 %% Power Iteration Example
 % This file compares the computational time as state dimention is varied
-% for computing finite horizon worst-case disturbance lower bound using the
-% following two methods.
+% for computing finite horizon worst-case disturbance and induced L2 to L2
+% gain lower bound using the following two methods.
 %
 %   a) Power iteration
-%   b) Riccati approach usd in tvnorm
+%   b) Riccati approach usd in tvnorm function
 
 %% Create MAT file for the Plant Data
 if false
@@ -46,18 +46,22 @@ tB      = zeros(k,1);
 nBisect = zeros(k,1);
 nPiter  = zeros(k,1);
 
+%% Options
+tvpOpt = tvpoweritOptions('StopTol',1e-2);
+tvnOpt = tvnormOptions('RelTol',1e-2,'AbsTol',1e-2);
+
 %% Main For Loop
 for i = 1:k
     % Time-varying representation
     G = evalt(tvss(Gall(:,:,i)),[T0,Tf]);
     
     % Power iterations
-    [gLB(i),~,info1] = powerit(G);
+    [gLB(i),~,info1] = tvpowerit(G,tvpOpt);
     tP(i) = info1.TotalTime;
     nPiter(i) = info1.TotalIter;
     
     % TVNORM
-    [tvn,~,info2] = tvnorm(G);
+    [tvn,~,info2] = tvnorm(G,tvnOpt);
     tvnLB(i) = tvn(1);
     nBisect(i) = info2.TotalBisections;
     tB(i) = info2.TotalTime;
@@ -71,7 +75,7 @@ filename = [mfilename sprintf('_nPlant%d',nPlant)];
 save(filename,'gLB','nBisect','nPiter','tB','tP','tvnLB','nPlant','NxAll');
 
 %% Plot Data
-load('compTimeStudy_nPlant5.mat');
+load('compTimeStudyL2toL2_nPlant5.mat');
 
 % Average Per Model Order
 k = 1;
@@ -89,7 +93,7 @@ plot(NxAll,tB_AVG,'--bo',NxAll,tP_AVG,'--rs','LineWidth',2);
 grid on;box on;
 xlabel('System Order (Nx)');
 ylabel('Average Computational Time (sec)');
-legend('Bisection Method','Power Iteration');
+legend('Bisection Method','Power Iteration','Location','northwest');
 
 % Plot Average Number of Iterations
 figure(2);clf;

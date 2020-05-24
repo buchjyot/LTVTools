@@ -19,6 +19,7 @@ switch plant_case
         Nu = 2;
         Ny = 3;
         G = rss(Nx,Ny,Nu);
+        G.D = 0;
         
     case 3
         % Example in which the feedthrough matrix has two identical
