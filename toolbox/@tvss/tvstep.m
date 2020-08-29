@@ -1,5 +1,5 @@
-function [Y,X,U] = tvstep(G,Tfinal,Opt)
-% TVSTEP simulate the step response of LTV System G
+function [Y,X] = tvstep(G,Tf,Opt)
+%% TVSTEP simulate the step response of LTV System G
 %
 % Example:
 %
@@ -12,39 +12,50 @@ function [Y,X,U] = tvstep(G,Tfinal,Opt)
 narginchk(1,3);
 nin = nargin;
 GTime = G.Time;
-Tf = GTime(end);
+GT0 = GTime(1);
+GTf = GTime(end);
 switch nin
     case 1
-        Tfinal = Tf;
+        Tf = GTf;
         Opt = tvstepOptions;
     case 2
         Opt = tvstepOptions;
 end
+T0 = GT0;
 
 % Assume Zero Initial Conditions
 Nx = order(G);
 x0 = zeros(Nx,1);
-[~,Nu] = size(G);
+[Ny,Nu] = size(G);
+
+% Memory Allocation
+Y = cell(Ny,Nu);
+X = cell(Ny,Nu);
 
 % Construct input U
-U = LOCALGetU(GTime,Tfinal,Nu,Opt);
+U = LOCALGetU(GTime,T0,Tf,Opt);
 
 % Simulate Response
 tvOpt = tvodeOptions('OdeSolver',Opt.OdeSolver,'OdeOptions',Opt.OdeOptions);
-[Y,X] = tvlsim(G,U,x0,tvOpt);
 
-function U = LOCALGetU(GTime,Tfinal,Nu,Opt)
+for i = 1:Ny
+    for j = 1:Nu
+        Gi = tvss(G.Data(i,j,:),GTime,G.InterpolationMethod);
+        [Y{i,j},X{i,j}] = tvlsim(Gi,U,[T0,Tf],x0,tvOpt);        
+    end
+end
+end
+
+function U = LOCALGetU(GTime,T0,Tf,Opt)
 % Tfinal must be between T0 and Tf and must be greater than Tstart
 Tstart = Opt.StepTime;
-T0 = GTime(1);
-Tf = GTime(end);
-if Tfinal > Tf || Tfinal < T0 || Tfinal < Tstart
+if Tf > Tf || Tf < T0 || Tf < Tstart
     error('Invalid Tfinal');
 end
 
-UST = cat(1,Tstart,GTime(GTime>Tstart & GTime<Tfinal),Tfinal);
+UST = cat(1,Tstart,GTime(GTime>Tstart & GTime<Tf),Tf);
 StepAmp = Opt.StepAmplitude;
-U = tvmat(StepAmp*ones(Nu,length(UST)),UST);
+U = tvmat(StepAmp*ones(1,length(UST)),UST);
 
 warning('off','ltvtools:evalt:extrapolate');
 % Sharpen the edge
@@ -52,6 +63,7 @@ UT = cat(1,U.Time(1)-0.003,U.Time(1)-0.002,U.Time(1)-0.001,...
     U.Time,U.Time(end)+0.001,U.Time(end)+0.002,U.Time(end)+0.003);
 % Transform to GTime Grid
 U = evalt(U,union(GTime,UT));
-Uadd = tvmat(Opt.InputOffset*ones(Nu,length(U.Time)),U.Time);
+Uadd = tvmat(Opt.InputOffset*ones(1,length(U.Time)),U.Time);
 U = U + Uadd;
 warning('on','ltvtools:evalt:extrapolate');
+end

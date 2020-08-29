@@ -30,12 +30,12 @@ dWcCLr = dScl*dWcCLr/tvnorm(dWcCLr);
 
 %% Nominal LTV Simulations 
 % Response to worst-case disturbance
-XCLn = tvlsim(CLnA,dWcCLn,tvspt);
+XCLn = tvlsim(CLnA,dWcCLn,tvopt);
 fprintf(' Closed Loop with Nominal Controller :\n');
 fprintf(' L2toE Gain Lower Bound = %.3f\n',gCLn(1)*dScl);
 fprintf(' LTV Simulation Terminal Euclidean Norm = %.3f\n',norm(tvsubs(XCLn,XCLn.Time(end))));
 
-XCLr = tvlsim(CLrA,-dWcCLr,tvspt);
+XCLr = tvlsim(CLrA,-dWcCLr,tvopt);
 fprintf(' Closed Loop with Robust Controller :\n');
 fprintf(' L2toE Gain Lower Bound = %.3f\n',gCLr(1)*dScl);
 fprintf(' LTV Simulation Terminal Euclidean Norm = %.3f\n',norm(tvsubs(XCLr,XCLr.Time(end))));

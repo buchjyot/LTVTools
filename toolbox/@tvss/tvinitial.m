@@ -1,28 +1,40 @@
-function [Y,X] = tvinitial(G,x0,Opt)
-% TVINITIAL Simulate the Initial Condition Response of LTV System G
+function [Y,X] = tvinitial(G,x0,Tf,Opt)
+%% TVINITIAL Simulate the Initial Condition Response of LTV System G
 %
 % [Y,X] = tvinitial(G,X0) where G is a TVSS and X0 is initial condition
+%
+% [Y,X] = tvinitial(G,X0,Tf,Opt) where Tf is a final time and Opt is
+% tvodeOptions
 
 % Input Processing
 narginchk(1,3);
 nin = nargin;
 
 % Get sizes of states and inputs
-[A,B] = ssdata(G);
-Nx = size(A,1);
-Nu = size(B,2);
+Nx = order(G);
+[~,Nu] = size(G);
 
 % Unforced Response
-U = tvmat(zeros(Nu,1,size(G.Time,1)),G.Time);
+GTime = G.Time;
+GT0 = GTime(1);
+GTf = GTime(end);
+U = tvmat(zeros(Nu,1,size(GTime,1)),GTime);
+T0 = GT0;
 
 switch nin
     case 1
-        % Assume Zero Initial Conditions if nothing is specified
+        Tf = GTf;
         x0 = zeros(Nx,1);
         Opt = tvodeOptions;
         warning('Initial conditions were not specified, assuming zero initial conditions.');
     case 2
+        Tf = GTf;
+        x0 = zeros(Nx,1);
+        Opt = tvodeOptions;
+        warning('Initial conditions were not specified, assuming zero initial conditions.');
+    case 3
         Opt = tvodeOptions;
 end
 
-[Y,X] = tvlsim(G,U,x0,Opt);
+% Call TVLSIM
+[Y,X] = tvlsim(G,U,[T0,Tf],x0,Opt);

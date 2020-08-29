@@ -42,7 +42,6 @@ nT = length(Tf);
 % Options
 tvnopt = tvnormOptions('OdeSolver','ode45','RelTol',1e-3,'AbsTol',1e-4,'Bounds',[0 10]);
 tvopt = tvodeOptions('OdeSolver','ode45');
-tvspt = tvlsimOptions('OdeSolver','ode45');
 
 %% Main For Loop
 % Memory Allocation
@@ -86,7 +85,7 @@ switch plant_case
         U = normU*dWc{id}/tvnorm(dWc{id});
         Ptv = Pi{id};
         [T0MC,TfMC] = getHorizon(Ptv);
-        [Y,X] = tvlsim(Ptv,U,tvspt);
+        [Y,X] = tvlsim(Ptv,U,tvopt);
         gLinE = norm(tvsubs(Y,Y.Time(end)))/tvnorm(U);
         
         % Unit Variance White Noise Reponse
@@ -98,7 +97,7 @@ switch plant_case
         fprintf('Running %d Monte-Carlo Sims...\n',nMC);
         parfor j = 1:nMC
             Us{j} = tvmat(randn(TfMC*(1/Ts)+1,1)/sqrt(Ts),T0MC:Ts:TfMC);
-            [Ys{j},Xs{j}] = tvlsim(Ptv,Us{j},tvsopt);
+            [Ys{j},Xs{j}] = tvlsim(Ptv,Us{j},tvopt);
         end
         fprintf('Completed %d Monte-Carlo Sims.\n',nMC);
 end

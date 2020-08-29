@@ -132,7 +132,6 @@ RelTol      = 3e-3;
 AbsTol      = 1e-4;
 
 tvopt   = tvodeOptions('OdeSolver',OdeSolver);
-tvspt   = tvlsimOptions('OdeSolver',OdeSolver);
 tvhopt  = tvhinfsynOptions('Bounds',Bounds,'OdeSolver',OdeSolver,'RelTol',RelTol,'AbsTol',AbsTol);
 tvnopt  = tvnormOptions('Bounds',Bounds,'OdeSolver',OdeSolver,'RelTol',RelTol,'AbsTol',AbsTol);
 tvwcopt = tvwcOptions('RDEOptions',tvnopt,'Display','on','MaxIter',10,'Nlmi',25,'StopTol',5e-3);

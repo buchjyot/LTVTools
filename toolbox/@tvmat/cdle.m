@@ -26,7 +26,7 @@ switch nargin
     case 3
         % Specify Tspan (Forward in Time by default)
         Tspan = [T0,Tf];
-    case 4
+    case 5
         opt = varargin{1};
 end
 
@@ -82,10 +82,10 @@ if numel(Tspan)==2
         t(i,:) = tSol(1:end-1) + fac(i)*tDiff;
     end
     t = [t(:); tSol(end)];
-    Nt = numel(t);
 else
     t = sort(Tspan);
 end
+Nt = numel(t);
 
 % Compute W and Wdot
 nout = nargout;

@@ -154,20 +154,22 @@ try
         d{i+1} = LOCALSpectralFact(Delta,X11,Tspan);
         
         % Scaling variables
-        dd = d{i+1};gg = wcgain(i);
+        dd = d{i+1};gg = wcgain(i);sg = sqrt(gg);
         
         % For debugging check tvnorm of scaled closed loop
+        % Numerically it is better to have the factor of sqrt(gamma) on the
+        % performance channel both inputs and outputs.
         if DEBUG
             CL1 = CLoop{i};
-            dd1 = LOCALRegridDScale(dd,CL1.Time);
-            CLscl = blkdiag(dd1,eye(NY-Nv-Ny))*CL1*blkdiag(1/dd1,eye(NU-Nw-Nu)/gg);
+            dd1 = LOCALRegridDScale(dd,CL1.Time);            
+            CLscl = blkdiag(dd1,eye(NY-Nv-Ny)/sg)*CL1*blkdiag(1/dd1,eye(NU-Nw-Nu)/sg);
             tvnCLs{i} = tvnorm(CLscl,NE,tvnopt);
             fprintf(' SclPlant CL (TVN): %.4f\n',tvnCLs{i}(2));
         end
         
         %% ScaleOpenLoop for next iteration
         dd = LOCALRegridDScale(dd,Gunc.Time);
-        Gscl{i+1} = blkdiag(dd,eye(NY-Nv))*Gunc*blkdiag(inv(dd),eye(NU-Nw-Nu)/gg,eye(Nu));
+        Gscl{i+1} = blkdiag(dd,eye(NY-Nv)/sg)*Gunc*blkdiag(inv(dd),eye(NU-Nw-Nu)/sg,eye(Nu));
         
         %% Display Summary and store info
         if DispFlag

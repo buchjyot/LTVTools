@@ -67,49 +67,10 @@ else
 end
 end
 
-function B = LOCALevalTVUMAT(A,T,tvflag)
-%% LOCALevalTVUMAT
-% Handle Constant Case
-AData = A.Data;
-Nd = ndims(AData);
-Nt = numel(T);
-if A.isTimeInvariant
-    BData = repmat(AData,[ones(1,Nd) Nt]);
-    if tvflag
-        B = tvumat(BData,T);
-    else
-        B = BData;
-    end
-    return
-else
-    error('This is not supported yet.');
-end
-end
-
-function P = LOCALevalTVUSS(G,T,tvflag)
-%% LOCALevalTVUSS
-
-% Use lftdata to extract nominal and uncertain part
-[M,Delta] = lftdata(G);
-
-% Interpolate individual elements
-M = ltvutil.evalt(tvflag,M,T);
-
-% Wrap back into lft
-% XXX: Time Consuming
-lftIC = lft(Delta,M);
-
-% Package up result
-if tvflag
-    P = lftIC;
-else
-    P = lftIC.Data;
-end
-end
-
 function B = LOCALevalTVMAT(A,T,tvflag)
 %% LOCALevalTVMAT
 % Handle Constant Case
+ATime = A.Time;
 AData = A.Data;
 Nd = ndims(AData);
 Nt = numel(T);
@@ -121,12 +82,18 @@ if A.isTimeInvariant
         B = BData;
     end
     return
+elseif isConstantData(AData) && (T(1) >= ATime(1)) && (T(end) <= ATime(end))
+    BData = repmat(AData(:,:,1),[ones(1,Nd) Nt]);
+    if tvflag
+        B = tvmat(BData,T);
+    else
+        B = BData;
+    end
+    return
 end
 
 %% Handle Discrete Time-Varying Case
-ATime = A.Time;
 ATs = A.Ts;
-
 if ~isequal(ATs,0)
     LIA = ismembertol(ATime,T(:));
     if any(LIA) && sum(LIA) == Nt
@@ -144,9 +111,6 @@ if ~isequal(ATs,0)
 end
 
 %% Handle Continuous Time-Varying Case
-ATime = A.Time;
-AIM = A.InterpolationMethod;
-
 % Pre-process TVMAT Data
 ADiff = diff(ATime);
 NATime = numel(ATime);
@@ -163,6 +127,12 @@ mA = size(AData,1);
 nA = size(AData,2);
 ZEROS = zeros(mA,nA);
 BData = zeros( [numel(ZEROS) Nt] );
+
+% Identify Methods
+AIM = A.InterpolationMethod;
+%Tinside = T >=ATime(1) & T <=ATime(end);
+%Tinterp = T(Tinside);
+%Texterp = T(~Tinside);
 
 % Perform Interpolation
 switch AIM
@@ -181,9 +151,9 @@ switch AIM
                 % Extrapolate to zeros if outside horizon
                 Bi = ZEROS;
                 WarningFlag = true;
-            end
+            end  
             BData(:,i) = Bi(:);
-        end
+        end        
         BData = reshape(BData,[size(Bi) Nt]);
         
     case 'Flat'
@@ -289,5 +259,53 @@ if ~isempty(k)
 else
     k = 1;
     alpha = 0;
+end
+end
+
+function out = isConstantData(Data)
+%% isConstantData
+% This function helps in speeding up the computation for constant matrices,
+% in which case, no interpolation is needed.
+sz  = size(Data);
+out = isequal(Data,repmat(Data(:,:,1),[1 1 sz(end)]));
+end
+
+function B = LOCALevalTVUMAT(A,T,tvflag)
+%% LOCALevalTVUMAT
+% Handle Constant Case
+AData = A.Data;
+Nd = ndims(AData);
+Nt = numel(T);
+if A.isTimeInvariant
+    BData = repmat(AData,[ones(1,Nd) Nt]);
+    if tvflag
+        B = tvumat(BData,T);
+    else
+        B = BData;
+    end
+    return
+else
+    error('This is not supported yet.');
+end
+end
+
+function P = LOCALevalTVUSS(G,T,tvflag)
+%% LOCALevalTVUSS
+
+% Use lftdata to extract nominal and uncertain part
+[M,Delta] = lftdata(G);
+
+% Interpolate individual elements
+M = ltvutil.evalt(tvflag,M,T);
+
+% Wrap back into lft
+% XXX: Time Consuming
+lftIC = lft(Delta,M);
+
+% Package up result
+if tvflag
+    P = lftIC;
+else
+    P = lftIC.Data;
 end
 end

@@ -50,7 +50,7 @@ Acl = A - B*Kfh;
 Bcl = sys.B*0;
 R = tvmat(zeros(length(Acl.Time),1),Acl.Time); % Track 0
 sys_cl = tvss(Acl,Bcl,sys.C,sys.D);
-X = tvlsim(sys_cl,R,x0);
+X = tvlsim(sys_cl,R,R.Time,x0);
 Xdata = reshapedata(X);
 
 % Control inputs

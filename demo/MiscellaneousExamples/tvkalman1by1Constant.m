@@ -57,7 +57,7 @@ plot(Wo.Time,Wo,'LineWidth',2);
 title('Observability Gramian (Stable System)');
 
 % Use TVKALMAN to integrate CDRE
-[Kfh,Lfh,Pfh] = tvkalman(sys_tvss_kf,Qn,Rn,P0,[0 Tf]);
+[Kfh,Lfh,Pfh] = tvkalman(sys_tvss_kf,Qn,Rn,P0,[T0 Tf]);
 [Ae,Be,Ce,De] = ssdata(Kfh);
 
 % Plot the data
@@ -95,7 +95,7 @@ U = [u;W;V];
 X0 = [x0;x0+4];
 
 % Simulate System
-[~,X] = tvlsim(aug_sys,U,X0);
+[~,X] = tvlsim(aug_sys,U,U.Time,X0);
 X = evalt(X,t);
 
 % Plot Results

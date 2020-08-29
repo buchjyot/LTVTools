@@ -71,8 +71,8 @@ dWc1s = dScl*dWc1{id1}/tvnorm(dWc1{id1});
 dWc2s = dScl*dWc2{id2}/tvnorm(dWc2{id2});
 
 % Response to worst-case disturbance & worst-case uncertainty
-XCLn = tvlsim(lft(Deltawc1,CLnA),dWc1s,tvspt);
-XCLr = tvlsim(lft(Deltawc2,CLrA),-dWc2s,tvspt);
+XCLn = tvlsim(lft(Deltawc1,CLnA),dWc1s,tvopt);
+XCLr = tvlsim(lft(Deltawc2,CLrA),-dWc2s,tvopt);
 
 %% Save Data
 save(mfilename,'Deltawc1','Deltawc2','wcgUB1','wcgUB2','wcgLB1','wcgLB2','XCLn','XCLr','dWc1s','dWc2s');

@@ -36,7 +36,7 @@ dCL = dNorm*dCL/tvnorm(dCL);
 %% Closed-Loop Linear and Nonlinear Simulations
 
 % Linear Simulation with Worst-Case Disturbance
-[yLin,xLin] = tvlsim(Tlqr(1:2,:),dCL,tvspt);
+[yLin,xLin] = tvlsim(Tlqr(1:2,:),dCL,tvopt);
 yf = tvsubs(yLin,yLin.Time(end));
 gLin = norm(yf) / tvnorm(dCL);
 fprintf(' Nominal CL Gain Linear Sim = %4.4f\n',gLin);
@@ -108,7 +108,7 @@ Tnom = Lscl*Tnom*Rscl;
 % Try different horizons and compute worst-case gain
 % for Horizon = 1:1:4
 %     Temp = tvsplit(Tnom,Horizon);
-%     gWCG = tvwcgain(Temp,Delta,2,tvwcopt);
+%     gWCG = tvwcgain(Temp,Delta,NE,tvwcopt);
 % end
 
 %% Evaluate closed-loop with a specific bad perturbation
@@ -131,7 +131,7 @@ fprintf('\n ---- Evaluate "Bad" Perturbation \n');
 fprintf('\n Closed-loop gain with worst-case Delta = %4.4f',gWC(1))
 
 % Simulate linear system and evaluate gain
-yBad = tvlsim(Tbad,dWC,tvspt);
+yBad = tvlsim(Tbad,dWC,tvopt);
 gWC2 = norm( tvsubs(yBad,Tf) ) / tvnorm(dWC);
 fprintf('\n Closed-loop gain with worst-case Delta and dist. = %4.4f\n',gWC2)
 
@@ -170,6 +170,8 @@ hold on;
 % Load Random Disturbances and append worst-case disturbance
 load('RandomDisturbances.mat');
 d = [d, {dWC}];
+tvopt1 = tvopt;
+tvopt1.OdeSolver = 'ode45';
 
 % Simulate linearized system
 for i = 1:numel(d)
@@ -183,7 +185,7 @@ for i = 1:numel(d)
     di = di*dNorm/tvnorm(di);
     
     % Simulate linear system
-    yi = tvlsim(Tbad,di,tvspt);
+    yi = tvlsim(Tbad,di,[T0,Tf],tvopt);
     
     % Superimpose the trim trajectory to obtain actual angles
     % (See twoLinkRobot_BuildLTVModel for trim trajectory construction)
@@ -228,7 +230,7 @@ title(['Closed-Loop with ||d|| <= ' num2str(dNorm)]);
 hold off;
 
 %% Save Data
-save(mfilename,'Klqr','gCLNom','dCL','DeltaBad','gCL','wcinfoCL');
+save(mfilename,'Klqr','gCLNom','dCL','DeltaBad','gCL','wcinfoCL','Tlqr');
 
 %% Plot Nominal Trajectory
 figure; clf; hold on;

@@ -68,7 +68,7 @@ Ps = tvmat(reshape(eye(Nsp),Nsp,1,Nsp),tSp,'Spline');
 %% Memory Allocation
 glmi = zeros(Niter,1);
 grde = zeros(Niter,1);
-info = cell(Niter,1);
+AllIter(Niter,1) = struct('TotalTime',[],'LMI',[],'RDE',[]);
 
 %% Read UserData
 [Nw,Nv] = size(Delta);
@@ -82,6 +82,12 @@ if ~isequal(sqrtUL,1)
 end
 
 %% Iterations
+
+% Display starting
+if DispFlag
+    fprintf(' Starting IQC upper bound iterations...\n');
+end
+    
 % Begin Timing
 t0 = tic;
 
@@ -205,7 +211,7 @@ for i=1:Niter
     
     % Store Iteration Info
     solrdePrev = solrde;
-    info{i} = struct('TotalTime',toc(t0),'LMI',LMIinfo,'RDE',RDEinfo);
+    AllIter(i) = struct('TotalTime',toc(t0),'LMI',LMIinfo,'RDE',RDEinfo);
     
     % Newline for next iteration
     if DispFlag && i~=Niter
@@ -216,7 +222,7 @@ end
 %% Process Outputs
 % Store Iteration Info (if iteration terminated before Niter)
 if i < Niter
-    info{i} = struct('TotalTime',toc(t0),'LMI',LMIinfo,'RDE',RDEinfo);
+    AllIter(i) = struct('TotalTime',toc(t0),'LMI',LMIinfo,'RDE',RDEinfo);
 end
 
 % Display logs
@@ -230,16 +236,18 @@ end
 
 % Store outputs
 [wcg,idx] = min(grde(1:i)); % grde(i);
-info = info(1:i);
+AllIter = AllIter(1:i);
 tTotal = toc(t0);
 if DispFlag
     fprintf('\n Final Results:');
-    fprintf(' RobustGain = %4.4f,',wcg);
+    fprintf(' RobustPerfUB = %4.4f,',wcg);
     fprintf(' TotalCompTime = %4.4f\n',tTotal);
 end
-wcinfo = info{idx};
-wcinfo.AllIter = info;
+wcinfo = AllIter(idx);
+wcinfo.AllIter   = AllIter;
+wcinfo.TotalIter = i; 
 wcinfo.TotalTime = tTotal;
+% wcinfo.WCIter    = idx;
 end
 
 %% LOCAL Function: evalP

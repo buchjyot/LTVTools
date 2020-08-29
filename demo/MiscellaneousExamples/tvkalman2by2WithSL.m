@@ -89,7 +89,7 @@ for i = 1:3
     X0 = [x0;xhat0];
     
     % Simulate System
-    [~,X] = tvlsim(aug_sys,U,X0);
+    [~,X] = tvlsim(aug_sys,U,U.Time,X0);
     X = evalt(X,t);
     
     % Plot Results

@@ -109,9 +109,18 @@ xlabel('\theta_1 (rads)','FontSize',14);
 ylabel('\theta_2 (rads)','FontSize',14);
 axis([0.2993    1.3978   -1.2404   -0.1877]);
 legend('$T_{0 (d\rightarrow e_E)}$',...
-    ['$T_{' num2str(0.8) '(d\rightarrow e_E)}$'],'interpreter','latex','orientation','horizontal','fontsize',14,...
+    ['$T_{' num2str(0.8) '(d\rightarrow e_E)}$'],'interpreter','latex','orientation','horizontal','FontSize',14,...
     'location','north')
 title(' ')
+
+% Plot worst-case disturbances
+f11 = figure;
+tvplot(-dWcCLn(1),'b',-dWcCLn(2),'b--','LineWidth',2.5);hold on;
+tvplot(-dWcCLr(1),'r',-dWcCLr(2),'r--','LineWidth',2.5);
+box on;grid on;
+xlabel('Time (sec)');
+ylabel('Worst-case disturbances');
+legend('$d_{1n}$','$d_{2n}$','$d_{1r}$','$d_{2r}$','Location','northwest','interpreter','latex','FontSize',14);
 
 %% Robust Synthesis
 
@@ -170,6 +179,15 @@ axis([0.1124    1.4967   -1.3561   -0.0295]);
 legend('$T_{0 (d\rightarrow e_E)}$',...
     ['$T_{' num2str(0.8) '(d\rightarrow e_E)}$'],'interpreter','latex','orientation','horizontal','fontsize',14,...
     'location','north')
+
+% Plot worst-case disturbances
+f22 = figure;
+tvplot(-dWc1s(1),'b',-dWc1s(2),'b--');hold on;
+tvplot(-dWc2s(1),'r',-dWc2s(2),'r--');
+box on;grid on;
+xlabel('Time (sec)');
+ylabel('Worst-case disturbances');
+legend('$d_{1n}$','$d_{2n}$','$d_{1r}$','$d_{2r}$','Location','northwest','interpreter','latex','FontSize',14);
 
 %% TwoStateEx_UncSweep
 load('twoLinkRobot_UncSweep.mat');

@@ -1,25 +1,71 @@
 function [Y,X] = tvlsim(G,U,varargin)
-%% TVLSIM Simulate the response of a time-varying system
+%% TVLSIM Simulate the response of a time-varying system on a specified Tspan
 %
 % Possible Syntex:
-% [Y,X] = tvlsim(G,U)
 % [Y,X] = tvlsim(G,U,Opt)
-% [Y,X] = tvlsim(G,U,x0)
-% [Y,X] = tvlsim(G,U,x0,Opt)
+% [Y,X] = tvlsim(G,U,T)
+% [Y,X] = tvlsim(G,U,T,x0)
+% [Y,X] = tvlsim(G,U,T,Opt)
+% [Y,X] = tvlsim(G,U,T,x0,Opt)
 %
 % Where, G is a TVSS
-%        U is a TVMAT
-%        [Optional] T is a time grid or time span of integration
+%        [Optional] U is a TVMAT
+%        [Optional] T is a time vector that will be supplied to ODE solvers (see
+%        documentation of related ODE input arguments for more details)
 %        [Optional] x0 is initial condition or terminal condition, default to 0
 %        [Optional] Opt is tvodeOptions
 
 %% Input Processing
-narginchk(2,4);
-nin = nargin;
+narginchk(2,5);
 
 % System Data
 [A,B,C,D] = ssdata(G);
 Nx = order(G);
+
+% Plant horizon
+[GT0,GTf] = getHorizon(G);
+
+% Defaults
+Tspan = [];x0 = [];Opt = [];
+
+% Input processing
+nin = nargin;
+switch nin
+    case 3
+        Vin = varargin{1};
+        if isa(Vin,'tvodeOptions')
+            Opt = Vin;
+        else
+            Tspan = Vin;
+        end
+    case 4
+        Tspan = varargin{1};
+        Vin = varargin{2};
+        if isa(Vin,'tvodeOptions')
+            Opt = Vin;
+        else
+            x0 = Vin;
+        end
+    case 5
+        Tspan = varargin{1};
+        x0 = varargin{2};
+        Opt = varargin{3};
+end
+
+% Defaults
+if isempty(Tspan)
+    Tspan = [GT0,GTf];
+end
+if isempty(x0)
+    x0 = zeros(Nx,1);
+end
+if isempty(Opt)
+    Opt = tvodeOptions;
+end
+if isempty(U)
+    [~,Nu] = size(G);
+    U = evalt(tvmat(zeros(Nu,1)),union(Tspan,G.Time));
+end
 
 % If Nx = 0 then return Y = D*U;
 if isequal(Nx,0)
@@ -29,65 +75,8 @@ if isequal(Nx,0)
 end
 
 % Read Varargins
-Opt = [];x0 = [];
-switch nin
-    case 3
-        if isa(varargin{1},'tvlsimOptions')
-            Opt = varargin{1};
-        else
-            x0 = varargin{1};
-        end
-    case 4
-        x0 = varargin{1};
-        Opt = varargin{2};
-end
-
-% Assume zero boundary conditions if user did not provide any
-if isempty(x0)
-    x0 = zeros(Nx,1);
-end
-if isempty(Opt)
-    Opt = tvlsimOptions;
-end
 OdeSolverFh = str2func(Opt.OdeSolver);
 OdeOpt = Opt.OdeOptions;
-
-% Make sure the system (G) is defined on the given input (U) horizon
-ltvutil.verifyFH(G,U);
-[GT0,GTf] = getHorizon(G);
-[UT0,UTf] = getHorizon(U);
-
-% NOTE: The following code allows the simulation to happen even if the
-% input is only defined on a part of the horizon.
-if any(UT0>GTf || UTf>GTf || UT0<GT0 || UTf<GT0)
-    error('Input U must be defined on the subset of the system horizon.');
-end
-
-%% Tgrid
-% Integration time grid
-StepSize = Opt.StepSize;
-switch StepSize
-    case 'Default'
-        % Similar to MATLAB command lsim, this 'Default' step size assumes
-        % integration to be performed on the time grid specified by U.Time
-        % The returned output is also in the same time grid as U.Time.
-        Tgrid = U.Time;
-        
-    case 'Auto'
-        % Time grid is automatically determined by ODE solver, we only
-        % provide the span of integration
-        Tgrid = [UT0,UTf];
-        
-    otherwise
-        % This means StepSize is "Fixed" to the specified double value
-        Tgrid = UT0:StepSize:UTf;
-end
-
-% MATLAB command lsim does not allow backward simulation, whereas tvlsim
-% allows backward simulation if simulation "Type" option is specified as "BackwardInTime".
-if isequal(Opt.Type,'BackwardInTime')
-    Tgrid = flip(Tgrid);
-end
 
 %% Simulate System
 % Specify ODE
@@ -111,16 +100,16 @@ else
 end
 
 % Solve ODE
-[t,x] = OdeSolverFh(odefh,Tgrid,x0,OdeOpt);
+[t,x] = OdeSolverFh(odefh,Tspan,x0,OdeOpt);
 
 %% Construct Outputs
 
 % State vector X
 % TVMAT must have increasing time grid points
-if isequal(Opt.Type,'BackwardInTime')
-    X = tvmat(flip(x),flip(t));
-else
+if all(diff(Tspan)>0)
     X = tvmat(x,t);
+else
+    X = tvmat(flip(x),flip(t));
 end
 
 [U1,C,D] = evalt(U,C,D,X.Time);

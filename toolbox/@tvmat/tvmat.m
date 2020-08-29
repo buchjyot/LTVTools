@@ -118,6 +118,8 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                         obj.Data = reshape(Data,[szData(1) 1 Nt]);
                     elseif szData(1)==Nt
                         obj.Data = reshape(Data',[szData(2) 1 Nt]);
+                    else
+                        obj.Data = repmat(Data,[ones(1,length(szData)) Nt]);
                     end
                 end
             end
@@ -1048,7 +1050,8 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         
         %% Display General
         function displayGeneral(obj)
-            if isempty(obj)
+            [sz1,sz2] = size(obj);
+            if isequal(sz1,0) && isequal(sz2,0)
                 fprintf(newline);
                 fprintf(' %s','Empty time-varying matrix.');
                 fprintf(newline);fprintf(newline);

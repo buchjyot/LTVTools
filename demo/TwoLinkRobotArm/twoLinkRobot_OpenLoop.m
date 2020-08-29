@@ -23,7 +23,7 @@ dOL = dNorm*dOL/tvnorm(dOL);
 %% Open-Loop Linear and Nonlinear Simulations
 
 % Linear Simulation with Worst-Case Disturbance
-[yLin,xLin] = tvlsim(G(1:2,:),dOL,tvspt);
+[yLin,xLin] = tvlsim(G(1:2,:),dOL,tvopt);
 yf = tvsubs(yLin,yLin.Time(end));
 gLin = norm(yf) / tvnorm(dOL);
 fprintf(' Nominal OL Gain Linear Sim = %4.4f\n',gLin);

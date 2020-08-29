@@ -1,5 +1,7 @@
 function [g,d,info] = tvnorm(G,varargin)
-%% TVNORM Computes the time varying system norm
+%% TVNORM computes the time varying system norm using RDE bisections only. 
+%
+% Syntex: 
 %
 % [g,d,info] = tvnorm(G);
 % Computes default 'L2toL2' norm with default options.
@@ -21,6 +23,12 @@ function [g,d,info] = tvnorm(G,varargin)
 %
 % Output Arguments are worst-case gain (g) induced by L2 disturbance (d)
 % and relevant Riccati solution info
+%
+% If RDE does not have a solution then the method presented in the
+% following paper is used to construct the worst-case disturbance.
+% 
+% Iannelli, Seiler, Marcos, Construction of worst-case disturbances for LTV
+% systems with application to fexible aircraft, AIAA.
 
 %% Input Processing
 

@@ -127,6 +127,9 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                 % SS arrays have dim of 2 or >=4 but not 3.
                 if nmodels(obj.Data)==Nt
                     obj.Data = reshape(obj.Data,[1 Nt]);
+                elseif nmodels(obj.Data)==1
+                    % Expand across the time dimention
+                    obj.Data = repsys(obj.Data,[1 1 1 Nt]);
                 end
             end
             
@@ -498,14 +501,15 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         end
         
         function varargout = size(obj,varargin)
+            nout = nargout;
             if obj.isTimeInvariant
-                [varargout{1:max(nargout,1)}] = size( obj.Data, varargin{:});
+                [varargout{1:max(nout,1)}] = size( obj.Data, varargin{:});
             else
                 Data = obj.Data; %#ok<*PROPLC>
                 
                 nd = ndims(Data)-3;
                 id = repmat({':'},1,nd);
-                [varargout{1:max(nargout,1)}] = size( Data(:,:,id{:},1), varargin{:});
+                [varargout{1:max(nout,1)}] = size( Data(:,:,id{:},1), varargin{:});
             end
         end
         
@@ -773,7 +777,8 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         
         %% Display General
         function displayGeneral(obj)
-            if isempty(obj)
+            [sz1,sz2] = size(obj);
+            if isequal(sz1,0) && isequal(sz2,0)
                 fprintf(newline);
                 fprintf(' %s','Empty time-varying state-space model.');
                 fprintf(newline);fprintf(newline);

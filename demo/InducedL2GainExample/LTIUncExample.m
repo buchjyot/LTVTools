@@ -56,14 +56,14 @@ for k=1:NT
     
     % Robust L2 to L2 gain
     % Deprecated Syntax: [gfinal,wcinfo] = tvrobL2toL2(tvss(G),v,p,T,tlmi,tSp);
-    Gtv = evalt(tvss(G),[T0 T]);
+    Gtv = tvss(G,[T0 T]);
     [gfinal,wcinfo] = tvwcgain(Gtv,DeltaIQC,0,tvwcopt);
     Niter = numel(wcinfo.AllIter);
     Nall(k) = Niter;
     RobTime(k) = wcinfo.TotalTime;
     
     % Store final Results
-    AllResults(k) = struct('T',T,'wcinfo',{wcinfo},'gfinal',gfinal,'Niter',Niter);
+    AllResults(k) = struct('T',T,'wcinfo',wcinfo,'gfinal',gfinal,'Niter',Niter);
 end
 tstop = toc(tstart);
 fprintf(newline);
