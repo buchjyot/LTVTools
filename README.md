@@ -38,15 +38,18 @@ win64, maci64, glnxa64
   - Previous Graduate Students at UC Berkeley
     - Robert Moore (Systems Engineer, Raytheon Space and Airborne Systems) 
     - Chris Meissen (Research Scientist, Ford Motor Company) 
+    - Octavio Narvaez Aroche
 
-* University of Minnesota, Twin-Cities 
-  - Peter Seiler (Associate Professor of Aerospace Engineering and Mechanics) 
-  - Jyot Buch (Graduate Student)
+* University of Michigan, Ann Arbor
+  - Peter Seiler (Associate Professor in Electrical Engineering and Computer Science) 
+
+* University of Minnesota, Twin-Cities
+  - Jyot Buch (Graduate Student in Aerospace Engineering and Mechanics)
 
 ## Provide Feedback
 * For any suggestions on future enhancement or nice to have features of these tools and reporting bugs, please email following people at the department of Aerospace Engineering and Mechanics, University of Minnesota, Twin Cities.
 
-  - Peter Seiler - seile017@umn.edu
+  - Peter Seiler - pseiler@umich.edu
   - Jyot Buch    - buch0271@umn.edu
   
 ## Acknowledgements
