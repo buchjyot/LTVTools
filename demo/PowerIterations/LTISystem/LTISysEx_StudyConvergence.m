@@ -56,11 +56,11 @@ Gt = tvss(G,[T0,Tf]);
 pOpt = poweritOptions('Display','on','StoreAllIter',true);
 pSpec= poweritSignalSpec('NE',NE);
 [g1,d1,info] = powerit(Gt,[T0,Tf],pSpec,pOpt);
-% analyzeResults(info)
+% analyzeInfo(info)
 
 %% RDE Bisections
 tOpt = tvnormOptions('Display','on');
-[g2,d2] = tvnorm(Gt,tOpt);
+[g2,d2] = tvnormb(Gt,tOpt);
 
 %% Plot Disturbances
 figure(1);

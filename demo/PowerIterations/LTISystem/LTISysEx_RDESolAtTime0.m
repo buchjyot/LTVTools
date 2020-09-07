@@ -27,7 +27,7 @@ P = cell(Ng,1);
 P0 = cell(Ng,1);
 figure(1);clf;grid on;box on;hold on;
 for i = 1:Ng
-   [~,~,info1] = tvnorm2(Gt,gGrid(i),NE,tOpt); 
+   [~,~,info1] = tvnormg(Gt,gGrid(i),NE,tOpt); 
    P{i} = info1.P;
    P0{i} = tvsubs(P{i},T0);
    

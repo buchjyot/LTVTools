@@ -24,6 +24,9 @@ classdef (CaseInsensitiveProperties = true,TruncatedProperties = true) poweritSi
         % Initial conditions
         InitialConditions = 'fixed';
         
+        % InitialCondConstraint
+        InitialCondConstraint = 'separate';
+        
         % Initial condition cost matrix
         % Small value of this means, larger uncertainty
         % Bigger value means, we are certain and InitialConditions are
@@ -135,6 +138,15 @@ classdef (CaseInsensitiveProperties = true,TruncatedProperties = true) poweritSi
                 error('The "InitialConditions" option must be set to ''fixed'' or ''free''.')
             end
             opt.InitialConditions = V;
+        end
+        
+        %% Specify InitialConditions
+        function opt = set.InitialCondConstraint(opt,V)
+            V = ltipack.matchKey(V,{'separate','combined'});
+            if isempty(V)
+                error('The "InitialCondConstraint" option must be set to ''separate'' or ''combined''.')
+            end
+            opt.InitialCondConstraint = V;
         end
         
         %% Specify InitialCondCostMat

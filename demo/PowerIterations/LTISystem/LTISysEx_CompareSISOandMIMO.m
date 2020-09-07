@@ -33,15 +33,15 @@ G2 = tvss(G2,[T0,Tf]);
 pOpt = poweritOptions('Display','on','StoreAllIter',true,'StopTol',1e-3);
 t = linspace(T0,Tf,100);
 d1 = tvmat(ones(1,1,100),t);
-[g1,dwc1,info1] = tvpowerit(G1,0,d1,[],pOpt);
-[g2,dwc2,info2] = tvpowerit(G2,0,[d1;d1],[],pOpt);
+[g1,dwc1,info1] = tvnormp(G1,0,d1,[],pOpt);
+[g2,dwc2,info2] = tvnormp(G2,0,[d1;d1],[],pOpt);
 
 %% RDE Approach
 tOpt = tvnormOptions('Display','on','RelTol',1e-3);
-[n2,d2,rdeinfo1] = tvnorm(G2,tOpt);
+[n2,d2,rdeinfo1] = tvnormb(G2,tOpt);
 
 %% Compare MIMO plant results to SISO plant results
-[n1,d1,rdeinfo2] = tvnorm(G1,tOpt);
+[n1,d1,rdeinfo2] = tvnormb(G1,tOpt);
 
 %% Plot
 figure(1);

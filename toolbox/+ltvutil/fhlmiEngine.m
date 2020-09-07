@@ -27,9 +27,11 @@ function [g,info] = fhlmiEngine(G,Delta,Ps,Psdot,Pm,Pmdot,Opt,NE)
 flag = ltvutil.iqcEngine(Delta);
 switch flag
     case 0
+        % Enfore M11 > 0
         LMIFCN = @LOCALfhlmiDefault;
         
     case 1
+        % Enfore M11(t) > 0
         LMIFCN = @LOCALfhlmiTVM11;
 end
 

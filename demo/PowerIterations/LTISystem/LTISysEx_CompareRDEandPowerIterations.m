@@ -26,7 +26,7 @@ fprintf('### MATLAB Power Iterations:\n');
 [gLB1,dwc1,info1] = powerit(Gt,[T0,Tf],pSpec,pOpt);
 
 % Analyze Results (This will plot all the results only if StoreAllIter is set to true)
-fh = analyzeResults(info1);
+fh = analyzeInfo(info1);
 
 % Display
 fprintf(' Lower Bound: %.3f, Total Iterations: %d, Computational Time: %.3f seconds\n\n',gLB1,info1.TotalIter,info1.TotalTime);
@@ -34,8 +34,8 @@ fprintf(' Lower Bound: %.3f, Total Iterations: %d, Computational Time: %.3f seco
 %% Riccati Bisections
 % LTVTools
 fprintf('### Riccati Approach:\n');
-tOpt = tvnormOptions('Display','on');
-[tvn2,dwc2,info2] = tvnorm(Gt,NE,tOpt);
+tOpt = tvnormOptions('Display','on','RelTol',5e-3);
+[tvn2,dwc2,info2] = tvnormb(Gt,NE,tOpt);
 
 % Display
 fprintf(' Lower Bound: %.3f, Total RDE Bisections: %d, Computational Time: %.3f seconds\n\n',tvn2(1),info2.TotalBisections,info2.TotalTime);

@@ -6,10 +6,10 @@ classdef (CaseInsensitiveProperties = true, ...
     properties
         % Display progress of computation [{'off'} | {'on'}].
         Display = 'off';
-        % Relative Tolerance for bisection
+        % Relative Tolerance
         RelTol = 1e-2;
-        % Absolute Tolerance for bisection
-        AbsTol = 1e-6;
+        % Absolute Tolerance
+        AbsTol = 1e-4;
         % Initial bounds for bisection
         Bounds = [0, inf];
     end

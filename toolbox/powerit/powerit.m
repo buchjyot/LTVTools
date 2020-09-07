@@ -156,6 +156,7 @@ end
 
 % Read initial conditions
 fixedIC = isequal(InitialConditions,'fixed');
+sepICConstraint = isequal(InitialCondConstraint,'separate');
 id = cellfun(@(x) isa(x,'double'),varargin);
 V3 = varargin(id);
 zeroIC = [];
@@ -233,22 +234,25 @@ U1 = U1*(InputL2Norm/tvnorm(U1));
 isUncertain = (Np||Nv||Nw);
 if isUncertain
     % Robust Analysis
-    solverfh = @uwcsolver_default;
+    solverfh = @ltvutil.powerit.uwcsolver_default;
 else
     % Nominal Analysis
     if fixedIC
         solver_case = 1;
         switch solver_case
             case 1
-                solverfh = @wcsolver_default;
+                solverfh = @ltvutil.powerit.wcsolver_default;
             case 2
-                solverfh = @wcsolver_default_normalize_twice;
+                solverfh = @ltvutil.powerit.wcsolver_default_normalize_twice;
             case 3
-                solverfh = @wcsolver_yFminusy0_terminalconstraint;
+                solverfh = @ltvutil.powerit.wcsolver_yFminusy0_terminalconstraint;
         end
     else
-        % solverfh = @wcsolver_combined_initialcondition_inputnorm_constraint;
-        solverfh = @wcsolver_separate_initialcondition_inputnorm_constraint;
+        if sepICConstraint
+            solverfh = @ltvutil.powerit.wcsolver_separate_initialcondition_inputnorm_constraint;
+        else
+            solverfh = @ltvutil.powerit.wcsolver_combined_initialcondition_inputnorm_constraint;
+        end
     end
 end
 [varargout{1:max(nout,1)}] = feval(solverfh,mySystem,tUser,U1,x0(:),pSpec,pOpt,systemType);

@@ -20,8 +20,8 @@ NE = 0;
 
 %% Test Combined Algorithm
 % LTVTools
-tOpt = tvnormOptions('Display','on','RelTol',1e-3,'OdeSolver','ode45');
-[tvn,dwc,info] = tvnorm1(Gt,NE,tOpt);
+tOpt = tvnormOptions('Display','on','OdeSolver','ode45');
+[tvn,dwc,info] = tvnorm(Gt,NE,tOpt);
 
 % Display
 fprintf(' Bounds: [%.3f,%.3f], Total RDE Count: %d, Computational Time: %.3f seconds\n\n',tvn(1),tvn(2),info.RDEcnt,info.TotalTime);

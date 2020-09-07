@@ -35,7 +35,7 @@ switch E0_CASE
 end
 
 %% RDE Approach
-[g1,d1,info1] = tvnorm3(Gt,E0,NE,tOpt);
+[g1,d1,info1] = tvnormic(Gt,E0,NE,tOpt);
 P = info1.Upper.P;
 P0 = tvsubs(P,T0);
 nd1 = tvnorm(d1);
@@ -46,7 +46,7 @@ pSpec = poweritSignalSpec('NE',NE,'InitialConditions','free','InitialCondCostMat
 
 % Power Iterations
 [g2,d2,info2] = powerit(Gt,[T0,Tf],pSpec,pOpt);
-analyzeResults(info2);
+analyzeInfo(info2);
 nd2 = tvnorm(d2);
 
 %% Saperate figure for P0 and E0

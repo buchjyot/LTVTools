@@ -1,4 +1,4 @@
-function [wcg,wcinfo] = tvwcgain(G,Delta,varargin)
+function [wcg,wcinfo] = tvwcgain(G,varargin)
 %% TVWCGAIN Worst-Case Gain of uncertain LTV system on a finite horizon
 %
 % Inputs
@@ -15,35 +15,23 @@ function [wcg,wcinfo] = tvwcgain(G,Delta,varargin)
 % the LTV system is defined.
 
 %% Input Processing
-nin = nargin;
-narginchk(2,4);
+narginchk(1,4);
+[Delta,NE,Opt] = ltvutil.parseInput(varargin,{'udyn','double','tvwcOptions'});
 
-NE = []; Opt = [];
-switch nin
-    case 3
-        if isa(varargin{1},'tvwcOptions')
-            Opt = varargin{1};
-        elseif isa(varargin{1},'double')
-            NE = varargin{1};
-        end
-    case 4
-        NE = varargin{1};
-        Opt = varargin{2};
-end
-
-% Use Default Options
+% Defaults
 if isempty(Opt)
     Opt = tvwcOptions;
+end
+if isempty(Delta)
+    Delta = udyn('Delta',[1 1],'UserData',[0,-10,1]);
+end
+if isempty(NE)
+    NE = 0;
 end
 
 % Time Horizon
 ltvutil.verifyFH(G);
 [T0,Tf] = getHorizon(G);
-
-% If NE is empty [] then make it zero
-if isempty(NE)
-    NE = 0;
-end
 
 %% Read Options
 DispFlag = isequal(Opt.Display,'on');
@@ -87,7 +75,7 @@ end
 if DispFlag
     fprintf(' Starting IQC upper bound iterations...\n');
 end
-    
+
 % Begin Timing
 t0 = tic;
 
@@ -245,7 +233,7 @@ if DispFlag
 end
 wcinfo = AllIter(idx);
 wcinfo.AllIter   = AllIter;
-wcinfo.TotalIter = i; 
+wcinfo.TotalIter = i;
 wcinfo.TotalTime = tTotal;
 % wcinfo.WCIter    = idx;
 end
