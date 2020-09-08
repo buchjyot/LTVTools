@@ -71,8 +71,9 @@ end
 E = [];
 
 % Extract Euclidean part
-GTf = tvsubs(G,Tf);
-[~,~,CTf,DTf] = ssdata(GTf(NL2+1:NY,:));
+[CE,DE] = tvsubs(C,D,Tf);
+CTf = CE(NL2+1:NY,:);
+DTf = DE(NL2+1:NY,:);
 
 % Verify there is no feedthrough from d->e for L2toE
 if any(DTf(:))
@@ -81,12 +82,13 @@ end
 
 % If NL2 == 0 then call utility function to compute L2toE
 if isequal(NL2,0)
-    [g,d,info] = ltvutil.tvL2toE(A,B,CTf,Nx,T0,Tf,odeOpt);
+    [g,d,info] = ltvutil.tvL2toE(A,B,CTf,Nx,T0,Tf,nout,odeOpt);
     return;
 end
 
 % Extract L2 part
-[~,~,CL2,DL2] = ssdata(G(1:NL2,:));
+CL2 = C(1:NL2,:);
+DL2 = D(1:NL2,:);
 
 % Generic Cost Matrices
 % XXX This set-up requires R(t) to be inverted at each time step.

@@ -61,7 +61,7 @@ if ~(NE >= 0) || ~(NE <= NY)
 end
 
 %% Build Cost Function Matrices
-[A,B] = ssdata(G);
+[A,B,C,D] = ssdata(G);
 [Nx,Nd] = size(B);
 
 % If Nx == 0 then error out
@@ -72,14 +72,13 @@ end
 % We do not support discriptor systems currently
 E = [];
 
-% XXX (JB) The following should work when 1:NY-NE is empty by some size
-% >> G(1:NY-NE,:)
-
 % Extract L2 part
-[~,~,CL2,DL2] = ssdata(tvss(G.Data(1:NY-NE,:),G.Time,G.InterpolationMethod));
+CL2 = C(1:NY-NE,:);
+DL2 = D(1:NY-NE,:);
 
 % Extract Euclidean part
-[~,~,CE,DE] = ssdata(tvss(G.Data(NY-NE+1:NY,:),G.Time,G.InterpolationMethod));
+CE = C(NY-NE+1:NY,:);
+DE = D(NY-NE+1:NY,:);
 [CTf,DTf] = tvsubs(CE,DE,Tf);
 
 % Verify there is no feedthrough from d->e for L2toE
