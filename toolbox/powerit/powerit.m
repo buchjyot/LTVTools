@@ -206,7 +206,15 @@ if isempty(V4)
     IntialParam  = sum(pSpec.UncParamRange,2)/2;
     fcn = str2func(InitialInput);
     Nt  = length(tUser);
-    if isequal(Nt,2) && (isequal(InitialInput,'randn') || isequal(InitialInput,'rand'))
+    
+    % Suffix 'c' represents complex signals
+    if isequal(InitialInput,'randnc')        
+        fcn = @(Nr,Nc,Nt) randn(Nr,Nc,Nt) + 1i*randn(Nr,Nc,Nt);
+    elseif isequal(InitialInput,'randc')
+        fcn = @(Nr,Nc,Nt) rand(Nr,Nc,Nt) + 1i*rand(Nr,Nc,Nt);
+    end
+    
+    if isequal(Nt,2) && any(contains({'randn','rand','randnc','randc'},InitialInput))
         % In this case user just provided the horizon for analysis. We
         % should define the input with some more samples to have more
         % exploration. We choose sample time as 5% of the horizon.
@@ -234,7 +242,7 @@ U1 = U1*(InputL2Norm/tvnorm(U1));
 isUncertain = (Np||Nv||Nw);
 if isUncertain
     % Robust Analysis
-    solverfh = @ltvutil.powerit.uwcsolver_default;
+    solverfh = @ltvutil.powerit.uwcsolver_default_normalize_twice;
 else
     % Nominal Analysis
     if fixedIC

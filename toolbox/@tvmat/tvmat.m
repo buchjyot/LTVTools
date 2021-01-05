@@ -8,10 +8,8 @@
 %   then M is an N1-by-N2-by-...-by-Nad time-varying array with value
 %   Data(:,...,:,i) at Time(i).
 %
-%   M = tvmat(Data,Time,InterpolationMethod) specifies the method to
-%   interpolate the data between the specified time grid points.  The
-%   method can be 'Linear', 'Flat', 'Nearest', or 'Spline'.
-%   Default is InterpolationMethod = 'Linear'.
+%   M = tvmat(Data,Time,Ts) creates a discrete time time-varying matrix
+%   with sample time Ts.
 %
 %   M = tvmat(Data) generates a constant matrix.
 %
@@ -67,7 +65,7 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
     methods
         %% Constructor
         % XXX Add undocumented flag to skip error checking?
-        function obj = tvmat(Data,Time,InterpolationMethod,varargin)
+        function obj = tvmat(Data,Time,Arg3)
             nin = nargin;
             switch nin
                 case 0
@@ -86,26 +84,27 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                     obj.Data = Data;
                     obj.Time = Time(:);
                 case 3
+                    % 3rd argument is SampleTime for DT TVMAT otherwise InterpolationMethod for CT TVMAT
                     obj.Data = Data;
                     obj.Time = Time(:);
-                    obj.InterpolationMethod = InterpolationMethod;
-                case 4
-                    obj.Data = Data;
-                    obj.Time = Time(:);
-                    obj.InterpolationMethod = InterpolationMethod;
-                    obj.Ts = varargin{1};
-                case 5
-                    obj.Data = Data;
-                    obj.Time = Time(:);
-                    obj.InterpolationMethod = InterpolationMethod;
-                    obj.Ts = varargin{1};
-                    obj.TimeUnit = varargin{2};
+                    if isa(Arg3,'double') % DT
+                        obj.Ts = Arg3;
+                        obj.InterpolationMethod = [];
+                    elseif isa(Arg3,'char') || isa(Arg3,'string') % CT
+                        obj.InterpolationMethod = Arg3;
+                    end
             end
             
-            % User want us to compute the SampleTime
-            if isempty(obj.Ts) || isempty(obj.InterpolationMethod)
-                diffTime = diff(Time(:));
-                obj.Ts = uniquetol(diffTime,sqrt(eps));
+            % Update the time grid if the object is discrete-time
+            Nt = numel(obj.Time);
+            szData = size(Data);
+            if ~isequal(obj.Ts,0) && isequal(Nt,2) && ~(szData(2)==Nt) && ~(szData(1)==Nt)
+                obj.Time = Time(1):obj.Ts:Time(end);
+            end
+            
+            % Force InterpolationMethod to be empty for discrete-time TVMAT
+            if ~isequal(obj.Ts,0)
+                obj.InterpolationMethod = [];
             end
             
             Nt = numel(obj.Time);
@@ -119,7 +118,16 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                     elseif szData(1)==Nt
                         obj.Data = reshape(Data',[szData(2) 1 Nt]);
                     else
-                        obj.Data = repmat(Data,[ones(1,length(szData)) Nt]);
+                        % At this point, Data is not reshaped if none of
+                        % the dimention matches the time vector length. We
+                        % replicate data across the time-grid.
+                        if isequal(obj.Ts,0)
+                            % Replicate data across the time-grid
+                            obj.Data = repmat(Data,[ones(1,length(szData)) Nt]);
+                        else
+                            % Discrete-Time TVMAT
+                            obj.Data = repmat(Data,[ones(1,length(szData)) Nt]);
+                        end
                     end
                 end
             end
@@ -130,7 +138,13 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                 szData(end) = 1;
                 idx = find( diff(szData)~= 0 );
                 Nd = max(2, numel(idx) );
-                obj.Data = reshape(obj.Data, [szData(1:Nd) Nt]);
+                if isequal(obj.Ts,0)
+                    obj.Data = reshape(obj.Data, [szData(1:Nd) Nt]);
+                else
+                    obj.Time = [Time(1):obj.Ts:Time(end)]';
+                    Nt = numel(obj.Time);
+                    obj.Data = reshape(obj.Data, [szData(1:Nd) Nt]);
+                end
             end
             
             % Use isvalid to perform all error checking
@@ -165,58 +179,67 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                 return
             end
             
-            % Check SampleTime
-            objTs = obj.Ts;
-            if ~(isnumeric(objTs) && isscalar(objTs) && isreal(objTs) && isfinite(objTs))
-                error('The value of the "SampleTime" property must be a real number.');
-            elseif objTs<0 && objTs~=-1
-                error('The value of the "SampleTime" property must be 0, a positive scalar, or -1 to mean unspecified for constant TVMATs.');
-            end
-            if ~isequal(objTs,0)
-                error('Discrete-Time TVMAT are not supported yet.');
-            end
-            
             % Check Time/Data Consistency
             szData = size(obj.Data);
             if any(isnan(objTime))
                 pflag = 0;
                 errstr = 'Time vector must not contain any NaNs.';
+                return
             end
             if obj.isTimeInvariant && ~all(objTime==[-inf inf])
                 pflag = 0;
                 errstr = 'Time vector must be [-inf inf] for constant TVMATs.';
+                return
             end
             if ~obj.isTimeInvariant && ~all(size(objData)==0) && ...
-                    ~(numel(szData)>2 && szData(end)==Nt )
+                    ~(numel(szData)>2 && szData(end)==Nt)
                 pflag = 0;
                 errstr = 'Dimensions of Time and Data are incompatible.';
+                return
             end
-            if ~isequal(objTs,0) && ~isequal(objTs,-1)
+            
+            % Check SampleTime and InterpolationMethod
+            objTs = obj.Ts;
+            IM = obj.InterpolationMethod;
+            if ~isequal(objTs,0)
                 % Discrete-Time TVMAT
-                diffTime = diff(objTime);
-                
-                if ~isequal(numel(uniquetol(diffTime,sqrt(eps))),1)
+                diffTime = diff(objTime(:));
+                TimeSteps = uniquetol(diffTime,sqrt(eps));
+                if ~isequal(numel(TimeSteps),1)
                     pflag = 0;
                     errstr = 'Discrete-Time TVMAT must be regularly sampled.';
-                elseif ~isequal(numel(uniquetol([uniquetol(diffTime,sqrt(eps)),...
-                        obj.Ts],sqrt(eps))),1)
+                    return
+                end
+                if ~isequal(numel(uniquetol([TimeSteps,objTs],sqrt(eps))),1) && ~any(isinf(objTime))
                     pflag = 0;
-                    errstr = 'SampleTime Property must be consistent with Time.';
+                    errstr = 'Time vector and "SampleTime" property must be consistent.';
+                    return
+                end
+                if ~isempty(IM)
+                    pflag = 0;
+                    errstr = 'InterpolationMethod must be empty for Discrete-Time TVMAT';
+                    return
+                end
+            else
+                % Continuous-Time TVMAT
+                if ~any(strcmpi(IM,{'Flat'; 'Nearest';'Linear'; 'Spline'}) )
+                    pflag = 0;
+                    errstr = ['InterpolationMethod must be "Flat", '...
+                        '"Nearest", "Linear", or "Spline" for Continuous-Time TVMAT'];
+                    return
                 end
             end
             
-            % Check IM
-            IM = obj.InterpolationMethod;
-            if ~isequal(objTs,0)
-                % Discrete-Time TVMAT IM should be empty
-                if ~isempty(IM)
-                    pflag = 0;
-                    errstr = 'InterpolationMethod must be empty for Discrete-Time TVMAT.';
-                end
-            elseif ~any(strcmpi(IM,{'Flat'; 'Nearest';'Linear'; 'Spline'}) )
+            % Validate SampleTime
+            if ~(isnumeric(objTs) && isscalar(objTs) && isreal(objTs) && isfinite(objTs))
                 pflag = 0;
-                errstr = ['InterpolationMethod must be "Flat", '...
-                    '"Nearest", "Linear", or "Spline" for Continuous-Time TVMAT'];
+                errstr = 'The value of the "SampleTime" property must be a real number.';
+                return
+            elseif objTs<0 && objTs~=-1
+                pflag = 0;
+                errstr = ['The value of the "SampleTime" property must be 0, '...
+                    'a positive scalar, or -1 to mean unspecified for constant TVMAT.'];
+                return
             end
             
             if pflag==0 && nargout==0
@@ -289,10 +312,6 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         %% SET Methods
         function obj = set.Ts(obj,V)
             obj.Ts = V;
-            [pflag,errstr] = isvalid(obj);
-            if pflag==0
-                error(errstr);
-            end
         end
         
         function obj = set.TimeUnit(obj,V)
@@ -380,12 +399,14 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         end
         
         function out = isct(obj)
-            % Returns true if SampleTime is 0
+            % Returns true if obj is Continuous-time TVMAT
+            % (SampleTime is 0)
             out = isequal(obj.Ts,0);
         end
         
         function out = isdt(obj)
-            % Returns true is SampleTime is nonzero
+            % Returns true if obj is Discrete-Time TVMAT
+            % (SampleTime is nonzero)
             out = ~isequal(obj.Ts,0);
         end
         
@@ -437,8 +458,8 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
             end
         end
         
-        function out = tvmax(obj)
-            out = max(obj.Data(:));
+        function [out,tid] = tvmax(obj)
+            [out,tid] = max(obj.Data(:));
         end
         
         function out = tvmin(obj)
@@ -1023,7 +1044,7 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         
         %% GetFooter
         function footer = getFooter(obj)             %#ok<MANU>
-            footer = ' Use "get" method to see all the properties.';
+            footer = ' Use the "get" method to see all the properties.';
             format = get(0,'FormatSpacing');
             switch format
                 case 'compact'
@@ -1068,8 +1089,9 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                 propList.Horizon = [obj.Time(1),obj.Time(end)];
                 if obj.Ts~=0
                     propList.SampleTime = obj.Ts;
+                else
+                    propList.InterpolationMethod = obj.InterpolationMethod;
                 end
-                propList.InterpolationMethod = obj.InterpolationMethod;
                 propgrp = matlab.mixin.util.PropertyGroup(propList);
                 matlab.mixin.CustomDisplay.displayPropertyGroups(obj,propgrp);
                 

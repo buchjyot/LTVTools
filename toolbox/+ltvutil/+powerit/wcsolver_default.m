@@ -25,6 +25,7 @@ StoreAllIter     = (Opt.StoreAllIter && nout>2);
 NumPertRel       = LinOpt.NumericalPertRel;
 tvopt            = tvodeOptions('OdeSolver',OdeSolver,'OdeOptions',OdeOptions);
 StopTolSatisfied = false;
+InfNaNDetected   = false;
 
 % Create a watch window
 if isequal(Display,'plot')
@@ -142,6 +143,9 @@ for i = 1:MaxIter
     
     % Compute induced gain
     FwdPerf  = normy/normu;
+    if isnan(FwdPerf) || isinf(FwdPerf)
+        InfNaNDetected = true;
+    end
     
     %% Linearize System
     Nt = length(Tgrid1);
@@ -287,6 +291,8 @@ for i = 1:MaxIter
             if StopTolSatisfied
                 break;
             end
+        elseif InfNaNDetected
+            break;
         end
     end
     
@@ -334,13 +340,16 @@ warning(orig_warning_state);
 switch Display
     case 'on'
         % Terminate command window display
-        if isequal(i,MaxIter) && ~StopTolSatisfied
+        if isequal(i,MaxIter) && ~StopTolSatisfied && ~InfNaNDetected
             fprintf(' Maximum number of iterations reached.\n');
-        elseif StopTolSatisfied
+            fprintf(' Final Results: NominalPerfLB = %4.4f, TotalCompTime = %4.4f\n',wcPerf,tTotal);
+        elseif StopTolSatisfied && ~InfNaNDetected
             fprintf(DisplayString(i,thisPerf,deltaU));fprintf(newline);
             fprintf(' Stopping tolerance satisfied, terminating iterations.\n');
-        end
-        fprintf(' Final Results: NominalPerfLB = %4.4f, TotalCompTime = %4.4f\n',wcPerf,tTotal);
+            fprintf(' Final Results: NominalPerfLB = %4.4f, TotalCompTime = %4.4f\n',wcPerf,tTotal);
+        elseif InfNaNDetected
+            fprintf(' Forward performance is either NaN or Inf, terminating power iterations.\n');
+        end        
         
     case 'plot'
         % Shutdown the watch window's interactive features
@@ -350,7 +359,7 @@ end
 
 %% Final Output
 info = [];
-if isequal(i,MaxIter) && ~StopTolSatisfied
+if isequal(i,MaxIter) && ~StopTolSatisfied && ~InfNaNDetected
     % In this case, algorithm did not converge, we should return the
     % worst-case iteration info.
     glb       = wcPerf;
@@ -358,13 +367,20 @@ if isequal(i,MaxIter) && ~StopTolSatisfied
     info.Xwc  = wcX;
     info.Ywc  = wcY;
     
-elseif StopTolSatisfied
+elseif StopTolSatisfied && ~InfNaNDetected
     % If stopping tolerance was satisfied then return the performance
     % achieved by stationary input
     glb       = thisPerf;
     wcInput   = thisU;
     info.Xwc  = thisX;
     info.Ywc  = thisY;
+    
+elseif InfNaNDetected
+    % InfNaNDetected then terminate
+    glb       = thisPerf;
+    wcInput   = [];
+    info.Xwc  = [];
+    info.Ywc  = [];
 end
 
 % Return general information

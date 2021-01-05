@@ -4,75 +4,71 @@
 load('twoLinkRobot_SpecifyOptions.mat');
 load('twoLinkRobot_Hinfsyn.mat');
 load('twoLinkRobot_HinfDesign.mat');
-load('twoLinkRobot_Robsyn.mat','Gunc','robinfo','Krob');
+load('twoLinkRobot_Robsyn.mat','Gunc','Krob1');
 
 %% Robust Analysis - Nominal Controller vs Robust Controller
 
 % Form Closedloop
-CLn = lft(evalt(Gunc,Knom.Time),Knom);
-CLr = lft(evalt(Gunc,Krob.Time),Krob);
+CLn0 = lft(evalt(Gunc,Knom.Time),Knom);
+CLr1 = lft(evalt(Gunc,Krob1.Time),Krob1);
 
 % Remove Design Weights
-CLn = blkdiag(eye(Nv),inv(Wu),inv(WE))*CLn*blkdiag(eye(Nw),inv(Wd),inv(Wn));
-CLr = blkdiag(eye(Nv),inv(Wu),inv(WE))*CLr*blkdiag(eye(Nw),inv(Wd),inv(Wn));
+% CLn0 = blkdiag(eye(Nv),inv(Wu),inv(WE))*CLn0*blkdiag(eye(Nw),inv(Wd),inv(Wn));
+% CLr1 = blkdiag(eye(Nv),inv(Wu),inv(WE))*CLr1*blkdiag(eye(Nw),inv(Wd),inv(Wn));
 
 % Consider d1,d2 to th1,th2
-CLnA = CLn([1 4:5],1:3);
-CLrA = CLr([1 4:5],1:3);
-
-% Uncertainty Norm Bound
-tvwcopt.ULevel = DelNorm;
+CLn0A = CLn0([1 4:5],:);
+CLr1A = CLr1([1 4:5],:);
 
 % Worst-case Gain
-[wcgUB1,info1] = tvwcgain(CLnA,Delta,NE,tvwcopt);
-[wcgUB2,info2] = tvwcgain(CLrA,Delta,NE,tvwcopt);
+tvwcopt.ULevel = DelNorm; % 0.8
+[wcgUB0,info0] = tvwcgain(CLn0A,Delta,NE,tvwcopt);
+[wcgUB1,info1] = tvwcgain(CLr1A,Delta,NE,tvwcopt);
 
 %% Sample Uncertainties
 NSamples = 100;
-rng('shuffle');
 UncSample = ltiusample(DelNorm,NSamples);
-rng('default');
 UncSample = [UncSample;DelNorm;-DelNorm];
 
-%% Find Worst-Case Unceratinty
+% Find Worst-Case Unceratinty
 N = length(UncSample);
+g0 = zeros(N,1);
 g1 = zeros(N,1);
-g2 = zeros(N,1);
+dWc0 = cell(N,1);
 dWc1 = cell(N,1);
-dWc2 = cell(N,1);
 parfor i = 1:N
-    [gE1,dWc1{i}] = tvnorm(lft(UncSample{i},CLnA),NE,tvnopt);
+    [gE0,dWc0{i}] = tvnormb(tvss(lft(UncSample{i},CLn0A.Data),CLn0A.Time),NE,tvnopt);
+    g0(i) = gE0(1);
+    
+    [gE1,dWc1{i}] = tvnormb(tvss(lft(UncSample{i},CLr1A.Data),CLr1A.Time),NE,tvnopt);
     g1(i) = gE1(1);
     
-    [gE2,dWc2{i}] = tvnorm(lft(UncSample{i},CLrA),NE,tvnopt);
-    g2(i) = gE2(1);
-    
-    fprintf(' wcg1:%.3f, wcg2:%.3f\n',g1(i),g2(i));
+    fprintf(' wcg0:%.3f, wcg1:%.3f\n',g0(i),g1(i));
 end
 
 % Find worst-case uncertainty
+[wcgLB0,id0] = max(g0);
 [wcgLB1,id1] = max(g1);
-[wcgLB2,id2] = max(g2);
+Deltawc0 = UncSample{id0};
 Deltawc1 = UncSample{id1};
-Deltawc2 = UncSample{id2};
 
 % Display results
-fprintf(' Nominal Controller Closed Loop Worst-Case Gain: [%.4f,%.4f]\n',wcgLB1,wcgUB1);
+fprintf(' Nominal Controller Closed Loop Worst-Case Gain: [%.4f,%.4f]\n',wcgLB0,wcgUB0);
 fprintf(' Worst-Case Delta:\n');
-Deltawc1 %#ok<*NOPTS>
+Deltawc0 %#ok<*NOPTS>
 
-fprintf(' Robust Controller Closed Loop Worst-Case Gain: [%.4f,%.4f]\n',wcgLB2,wcgUB2);
+fprintf(' Robust Controller Closed Loop Worst-Case Gain: [%.4f,%.4f]\n',wcgLB1,wcgUB1);
 fprintf(' Worst-Case Delta:\n');
-Deltawc2
+Deltawc1
 
 %% LTV Simulations with Worst-Case Uncertainty and Worst-Case Disturbance
 % Normalize worst-case disturbance
+dWc0s = dScl*dWc0{id0}/tvnorm(dWc0{id0});
 dWc1s = dScl*dWc1{id1}/tvnorm(dWc1{id1});
-dWc2s = dScl*dWc2{id2}/tvnorm(dWc2{id2});
 
 % Response to worst-case disturbance & worst-case uncertainty
-XCLn = tvlsim(lft(Deltawc1,CLnA),dWc1s,tvopt);
-XCLr = tvlsim(lft(Deltawc2,CLrA),-dWc2s,tvopt);
+XCLn = tvlsim(tvss(lft(Deltawc0,CLn0A.Data),CLn0A.Time),dWc0s,tvopt);
+XCLr = tvlsim(tvss(lft(Deltawc1,CLr1A.Data),CLr1A.Time),-dWc1s,tvopt);
 
 %% Save Data
-save(mfilename,'Deltawc1','Deltawc2','wcgUB1','wcgUB2','wcgLB1','wcgLB2','XCLn','XCLr','dWc1s','dWc2s');
+save(mfilename,'Deltawc0','Deltawc1','wcgUB0','wcgUB1','wcgLB0','wcgLB1','XCLn','XCLr','dWc0s','dWc1s');

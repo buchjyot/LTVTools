@@ -21,9 +21,12 @@ narginchk(2,5);
 % System Data
 [A,B,C,D] = ssdata(G);
 Nx = order(G);
+[Ny,Nu] = size(G);
 
 % Plant horizon
 [GT0,GTf] = getHorizon(G);
+GTs = G.Ts;
+GIM = G.InterpolationMethod;
 
 % Defaults
 Tspan = [];x0 = [];Opt = [];
@@ -63,10 +66,97 @@ if isempty(Opt)
     Opt = tvodeOptions;
 end
 if isempty(U)
-    [~,Nu] = size(G);
-    U = evalt(tvmat(zeros(Nu,1)),union(Tspan,G.Time));
+    Tgrid = union(Tspan,G.Time);
+    Nt = length(Tgrid);
+    if isequal(GTs,0)
+        U = tvmat(zeros(Nu,1,Nt),Tgrid,GIM);
+    else
+        U = tvmat(zeros(Nu,1,Nt),Tgrid,GTs);
+    end
 end
 
+% Check Sample Time
+UTs = U.Ts;
+if ~isequal(length(uniquetol([GTs,UTs],sqrt(eps))),1)
+    error('Both plant and input must have the same sample time.');
+end
+
+%% Simulate System
+if isequal(GTs,0)
+    [Y,X] = LOCALContinuousTimeSim(G,U,A,B,C,D,Nx,Tspan,x0,Opt);
+else
+    [Y,X] = LOCALDiscreteTimeSim(A,B,C,D,U,Nx,Ny,GTs,Tspan,x0);
+end
+
+function [Y,X] = LOCALDiscreteTimeSim(A,B,C,D,U,Nx,Ny,GTs,Tspan,x0)
+%% LOCALDiscreteTimeSim
+AData = A.Data;
+BData = B.Data;
+CData = C.Data;
+DData = D.Data;
+UData = U.Data;
+
+% Handle Tspan
+if length(Tspan) ~= 2
+    TimeDiff = uniquetol(diff(Tspan),sqrt(eps));
+    if abs(TimeDiff)-GTs > sqrt(eps)
+        % When specifying a time vector for time response simulations, the time step must match the sample time of discrete-time models.
+        ctrlMsgUtils.error('Control:analysis:rfinputs09');
+    end
+end
+
+if all(diff(Tspan) > 0)
+    % Forward Integration
+    SimType = 'Fwd';
+    Tgrid = Tspan(1):GTs:Tspan(end);
+else
+    % Backward Integration
+    SimType = 'Bwd';
+    Tgrid = Tspan(1):-GTs:Tspan(end);
+end
+
+% Time Grid
+Nt = length(Tgrid);
+
+% Memory allocation
+XData = zeros(Nx,1,Nt);
+YData = zeros(Ny,1,Nt);
+
+% Perform integration
+switch SimType
+    case 'Fwd'
+        % Initial Condition
+        XData(:,:,1) = x0;
+        
+        % Forward for Loop
+        for i = 1:1:Nt-1
+            XData(:,:,i+1) = AData(:,:,i)*XData(:,:,i) + BData(:,:,i)*UData(:,:,i);
+            YData(:,:,i)   = CData(:,:,i)*XData(:,:,i) + DData(:,:,i)*UData(:,:,i);
+        end
+        YData(:,:,Nt) = CData(:,:,Nt)*XData(:,:,Nt) + DData(:,:,Nt)*UData(:,:,Nt);
+        
+        % Final Output
+        X = tvmat(XData,Tgrid,GTs);
+        Y = tvmat(YData,Tgrid,GTs);
+        
+    case 'Bwd'
+        % Final Condition
+        XData(:,:,Nt) = x0;
+        
+        % Backward for Loop
+        for i = Nt:-1:2
+            XData(:,:,i-1) = AData(:,:,i-1)*XData(:,:,i) + BData(:,:,i-1)*UData(:,:,i-1);
+            YData(:,:,i)   = CData(:,:,i)*XData(:,:,i) + DData(:,:,i)*UData(:,:,i);
+        end
+        YData(:,:,1)   = CData(:,:,1)*XData(:,:,i) + DData(:,:,i)*UData(:,:,i);
+        
+        % Final Output
+        X = tvmat(XData,flip(Tgrid),GTs);
+        Y = tvmat(YData,flip(Tgrid),GTs);
+end
+
+function [Y,X] = LOCALContinuousTimeSim(G,U,A,B,C,D,Nx,Tspan,x0,Opt)
+%% LOCALContinuousTimeSim
 % If Nx = 0 then return Y = D*U;
 if isequal(Nx,0)
     Y = evalt(D,U.Time)*U;
@@ -78,7 +168,6 @@ end
 OdeSolverFh = str2func(Opt.OdeSolver);
 OdeOpt = Opt.OdeOptions;
 
-%% Simulate System
 % Specify ODE
 UseLinearInterp = isequal(G.InterpolationMethod,'Linear') && isequal(U.InterpolationMethod,'Linear');
 if UseLinearInterp

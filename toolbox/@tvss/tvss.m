@@ -55,7 +55,7 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
     
     properties (Dependent)
         % Following properties are dependent on underlying ssarray object
-        % High-Level Summary of Low-Level SSARRAY Data
+        % This is a high-level summary of a low-level SSARRAY Data
         Ts
         TimeUnit
         Name
@@ -75,7 +75,7 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         %% Constructor
         % XXX Add undocumented flag to skip error checking?
         % XXX Currently disallows descriptor data.
-        function obj = tvss(Data,Time,InterpolationMethod,varargin)
+        function obj = tvss(Data,Time,Arg3,varargin)
             nin = nargin;
             switch nin
                 case 0
@@ -86,30 +86,47 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                         obj = Data;
                         return
                     else
-                        obj.Data = Data;
+                        obj.Data = ss(Data);
                         obj.isTimeInvariant = true;
                     end
                 case 2
-                    obj.Data = Data;
+                    obj.Data = ss(Data);
                     obj.Time = Time(:);
                 case 3
-                    obj.Data = Data;
+                    obj.Data = ss(Data);
                     obj.Time = Time(:);
-                    obj.InterpolationMethod = InterpolationMethod;
+                    if isa(Arg3,'double') % DT
+                        obj.Ts = Arg3;
+                        obj.InterpolationMethod = [];
+                    elseif isa(Arg3,'char') || isa(Arg3,'string') % CT
+                        obj.InterpolationMethod = Arg3;
+                    end
                 otherwise
                     % tvss(A,B,C,D,Ts,...) where (A,B,C,D) are TVMATs or
                     % TVUMATs
-                    [isTimeInvariant,A,B,C,D] = tvswitchyard(Data,Time,InterpolationMethod,varargin{1});
+                    [isTimeInvariant,A,B,C,D] = tvswitchyard(Data,Time,Arg3,varargin{1});
                     varargin = varargin(2:end);
                     
                     if isTimeInvariant
-                        obj.Data = ss(A.Data,B.Data,C.Data,D.Data,varargin{:});
-                        obj.isTimeInvariant = true;
+                        obj.Data = ss(A.Data,B.Data,C.Data,D.Data,varargin{:});                        
                     else
                         obj.Data = ss(A.Data,B.Data,C.Data,D.Data,varargin{:});
                         obj.Time = A.Time;
                         obj.InterpolationMethod = A.InterpolationMethod;
+                        obj.Ts = A.Ts;
                     end
+                    obj.isTimeInvariant = isTimeInvariant;
+            end
+            
+            % Update the time grid if the object is discrete-time
+            Nt = numel(obj.Time);
+            if ~isequal(obj.Ts,0) && isequal(Nt,2)
+                obj.Time = Time(1):obj.Ts:Time(end);
+            end
+            
+            % Force InterpolationMethod to be empty for discrete-time TVMAT
+            if ~isequal(obj.Ts,0)
+                obj.InterpolationMethod = [];
             end
             
             % Convert Data in to State-Space
@@ -188,22 +205,48 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                 errstr = 'Dimensions of Time and Data are incompatible.';
             end
             
-            % Check IM
-            IM = obj.InterpolationMethod;
+            % Check SampleTime and InterpolationMethod
             objTs = obj.Ts;
+            IM = obj.InterpolationMethod;
             if ~isequal(objTs,0)
-                error('Discrete-Time TVSS are not supported yet.');
-            end
-            if ~isequal(objTs,0)
-                % Discrete-Time TVSS IM should be empty
+                % Discrete-Time TVMAT
+                diffTime = diff(objTime(:));
+                TimeSteps = uniquetol(diffTime,sqrt(eps));
+                if ~isequal(numel(TimeSteps),1)
+                    pflag = 0;
+                    errstr = 'Discrete-Time TVSS must be regularly sampled.';
+                    return
+                end
+                if ~isequal(numel(uniquetol([TimeSteps,objTs],sqrt(eps))),1) && ~any(isinf(objTime))
+                    pflag = 0;
+                    errstr = 'Time vector and "SampleTime" property must be consistent.';
+                    return
+                end
                 if ~isempty(IM)
                     pflag = 0;
-                    errstr = 'InterpolationMethod must be empty for Discrete-Time TVMAT.';
+                    errstr = 'InterpolationMethod must be empty for Discrete-Time TVSS.';
+                    return
                 end
-            elseif ~any(strcmpi(IM,{'Flat'; 'Nearest';'Linear'; 'Spline'}) )
+            else
+                % Continuous-Time TVMAT
+                if ~any(strcmpi(IM,{'Flat'; 'Nearest';'Linear'; 'Spline'}) )
+                    pflag = 0;
+                    errstr = ['InterpolationMethod must be "Flat", '...
+                        '"Nearest", "Linear", or "Spline" for Continuous-Time TVSS.'];
+                    return
+                end
+            end
+            
+            % Validate SampleTime
+            if ~(isnumeric(objTs) && isscalar(objTs) && isreal(objTs) && isfinite(objTs))
                 pflag = 0;
-                errstr = ['InterpolationMethod must be "Flat", '...
-                    '"Nearest", "Linear", or "Spline" for Continuous-Time TVMAT'];
+                errstr = 'The value of the "SampleTime" property must be a real number.';
+                return
+            elseif objTs<0 && objTs~=-1
+                pflag = 0;
+                errstr = ['The value of the "SampleTime" property must be 0, '...
+                    'a positive scalar, or -1 to mean unspecified for constant TVMAT.'];
+                return
             end
             
             if pflag==0 && nargout==0
@@ -750,7 +793,7 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         
         %% GetFooter
         function footer = getFooter(obj)             %#ok<MANU>
-            footer = ' Use "get" method to see all the properties.';
+            footer = ' Use the "get" method to see all the properties.';
             format = get(0,'FormatSpacing');
             switch format
                 case 'compact'
@@ -795,8 +838,9 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
                 propList.Horizon = [obj.Time(1),obj.Time(end)];
                 if obj.Ts~=0
                     propList.SampleTime = obj.Ts;
-                end
-                propList.InterpolationMethod = obj.InterpolationMethod;
+                else
+                    propList.InterpolationMethod = obj.InterpolationMethod;
+                end                
                 propgrp = matlab.mixin.util.PropertyGroup(propList);
                 matlab.mixin.CustomDisplay.displayPropertyGroups(obj,propgrp);
                 

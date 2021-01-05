@@ -25,14 +25,17 @@ tvnv = tvnorm(v);
 
 % Plot signals
 figure(1)
-tvsplot(Ysim,'b','LineWidth',2);
-subplot(3,1,1);ylabel('v');grid on; box on;
-subplot(3,1,2);ylabel('e_1');grid on; box on;
-subplot(3,1,3);ylabel('e_2');grid on; box on;
+subplot(2,1,1)
+tvplot(Ysim(1),'b','LineWidth',2);
+legend('v');grid on; box on;
 
-figure(2),tvsplot(Usim,'r','LineWidth',2);
-subplot(2,1,1);ylabel('w');grid on; box on;
-subplot(2,1,2);ylabel('d');grid on; box on;
+subplot(2,1,2)
+tvplot(Ysim(1),'b',Ysim(2),'c','LineWidth',2);
+legend('e_1','e_2');grid on; box on;
+
+figure(2)
+subplot(2,1,1);tvplot(Usim(1),'r','LineWidth',2);legend('w');grid on; box on;
+subplot(2,1,2);tvplot(Usim(2),'r','LineWidth',2);legend('d');grid on; box on;
 
 % Unify time grid
 tUnion = union(w.Time,v.Time);
@@ -60,5 +63,9 @@ DeltaBad = tvnw/tvnv; % wcuIH.Del
 Fu = lft(DeltaBad,Gt);
 
 % Compute the noninal input-output performance
-tvOpt = tvnormOptions('Display','on');
-[gbnd,dwc] = tvnorm1(Fu,NE,tvOpt);
+tvOpt = tvnormOptions('Display','on','RelTol',1e-3);
+[gbnd,dwc] = tvnormb(Fu,NE,tvOpt);
+
+%% Inspect bode plot
+figure, bode(wcuIH.Del)
+% Note that gain at critical frequency is 1 i.e. 0 db

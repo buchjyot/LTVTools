@@ -72,7 +72,7 @@ if isequal(NE,0)
 end
 
 %% Worst-Case Gain Upper Bounds
-ComputeWcGainUpperBounds = true;
+ComputeWcGainUpperBounds = false;
 if ComputeWcGainUpperBounds
     wcgUB = zeros(NT,1);
     wcInfo = cell(NT,1);

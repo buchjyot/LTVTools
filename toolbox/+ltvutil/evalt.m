@@ -2,8 +2,7 @@ function varargout = evalt(tvflag,varargin)
 %% EVALT Engine File
 % Main for loop for input arguments
 %
-% TVFLAG is set to true if return arguments are requested to be in native
-% objects
+% TVFLAG is set to true if return arguments are requested to be in native objects
 
 % Input Processing
 Tgrid = varargin{end};
@@ -18,7 +17,7 @@ N = nin-1;
 varargout = cell(1,N);
 for i = 1:N
     vin = varargin{i};
-    varargout{i} = EVALTRouting(vin,Tgrid,tvflag);
+    varargout{i} = EVALTRouting(vin,Tgrid(:),tvflag);
 end
 end
 
@@ -61,23 +60,34 @@ Dt = LOCALevalTVMAT(D,T,tvflag);
 
 % Package up result
 if tvflag
-    P = tvss(At,Bt,Ct,Dt);
+    P = tvss(At,Bt,Ct,Dt,G.Ts);
 else
-    P = ss(At,Bt,Ct,Dt);
+    P = ss(At,Bt,Ct,Dt,G.Ts);
 end
 end
 
 function B = LOCALevalTVMAT(A,T,tvflag)
 %% LOCALevalTVMAT
-% Handle Constant Case
+
+% Read properties
 ATime = A.Time;
 AData = A.Data;
+
+ATs = A.Ts;
+AIM = A.InterpolationMethod;
+if isempty(AIM)
+    Arg3 = uniquetol(diff(T),sqrt(eps));
+else
+    Arg3 = AIM;
+end
+
+%% Handle Constant Case
 Nd = ndims(AData);
 Nt = numel(T);
 if A.isTimeInvariant
     BData = repmat(AData,[ones(1,Nd) Nt]);
     if tvflag
-        B = tvmat(BData,T);
+        B = tvmat(BData,T,Arg3);
     else
         B = BData;
     end
@@ -85,40 +95,11 @@ if A.isTimeInvariant
 elseif isConstantData(AData) && (T(1) >= ATime(1)) && (T(end) <= ATime(end))
     BData = repmat(AData(:,:,1),[ones(1,Nd) Nt]);
     if tvflag
-        B = tvmat(BData,T);
+        B = tvmat(BData,T,Arg3);
     else
         B = BData;
     end
     return
-end
-
-%% Handle Discrete Time-Varying Case
-ATs = A.Ts;
-if ~isequal(ATs,0)
-    LIA = ismembertol(ATime,T(:));
-    if any(LIA) && sum(LIA) == Nt
-        BData = AData(:,:,LIA);
-    else
-        error('Invalid Time input for Discrete-Time TVMAT evalt.');
-    end
-    % Output
-    if tvflag
-        B = tvmat(BData,T,A.SampleTime,A.InterpolationMethod,A.TimeUnit);
-    else
-        B = BData;
-    end
-    return
-end
-
-%% Handle Continuous Time-Varying Case
-% Pre-process TVMAT Data
-ADiff = diff(ATime);
-NATime = numel(ATime);
-nad = ndims(AData)-3;
-if nad==0
-    id =  cell(1,0);
-else
-    id = repmat({':'},1,nad);
 end
 
 % Memory Allocation
@@ -127,110 +108,138 @@ mA = size(AData,1);
 nA = size(AData,2);
 ZEROS = zeros(mA,nA);
 BData = zeros( [numel(ZEROS) Nt] );
+nad = ndims(AData)-3;
+if nad==0
+    id =  cell(1,0);
+else
+    id = repmat({':'},1,nad);
+end
 
-% Identify Methods
-AIM = A.InterpolationMethod;
-%Tinside = T >=ATime(1) & T <=ATime(end);
-%Tinterp = T(Tinside);
-%Texterp = T(~Tinside);
-
-% Perform Interpolation
-switch AIM
-    case 'Linear'
-        for i=1:Nt
-            if T(i)<=ATime(end) && T(i)>=ATime(1)
-                % Within the horizon inclusive of boundary points
-                [k,alpha] = LOCALfindslotalpha(NATime,ATime,T(i),ADiff);
-                if alpha==0
+% Interpolation code for Continuous-time tvmat
+if isequal(ATs,0)
+    %% Continuous Time-Varying Case
+    
+    % Pre-process TVMAT Data  
+    ADiff = diff(ATime);
+    NATime = numel(ATime);
+    
+    % Perform Interpolation
+    switch AIM
+        case 'Linear'
+            for i=1:Nt
+                if T(i)<=ATime(end) && T(i)>=ATime(1)
+                    % Within the horizon inclusive of boundary points
+                    [k,alpha] = LOCALfindslotalpha(NATime,ATime,T(i),ADiff);
+                    if alpha==0
+                        Bi = AData(:,:,id{:},k);
+                    else
+                        Bi = (1-alpha)*AData(:,:,id{:},k) + ...
+                            alpha*AData(:,:,id{:},k+1);
+                    end
+                else
+                    % Extrapolate to zeros if outside horizon
+                    Bi = ZEROS;
+                    WarningFlag = true;
+                end
+                BData(:,i) = Bi(:);
+            end
+            BData = reshape(BData,[size(Bi) Nt]);
+            
+        case 'Flat'
+            for i=1:Nt
+                if T(i)<=ATime(end) && T(i)>=ATime(1)
+                    % Within the horizon inclusive of boundry points
+                    k = LOCALfindslotalpha(NATime,ATime,T(i),ADiff);
                     Bi = AData(:,:,id{:},k);
                 else
-                    Bi = (1-alpha)*AData(:,:,id{:},k) + ...
-                        alpha*AData(:,:,id{:},k+1);
+                    % Extrapolate to zeros if outside horizon
+                    Bi = ZEROS;
+                    WarningFlag = true;
                 end
-            else
-                % Extrapolate to zeros if outside horizon
-                Bi = ZEROS;
-                WarningFlag = true;
-            end  
-            BData(:,i) = Bi(:);
-        end        
-        BData = reshape(BData,[size(Bi) Nt]);
-        
-    case 'Flat'
-        for i=1:Nt
-            if T(i)<=ATime(end) && T(i)>=ATime(1)
-                % Within the horizon inclusive of boundry points
-                k = LOCALfindslotalpha(NATime,ATime,T(i),ADiff);
-                Bi = AData(:,:,id{:},k);
-            else
-                % Extrapolate to zeros if outside horizon
-                Bi = ZEROS;
-                WarningFlag = true;
+                BData(:,i) = Bi(:);
             end
-            BData(:,i) = Bi(:);
-        end
-        BData = reshape(BData,[size(Bi) Nt]);
-        
-    case 'Nearest'
-        for i=1:Nt
-            if T(i)<=ATime(end) && T(i)>=ATime(1)
-                [k,alpha] = LOCALfindslotalpha(NATime,ATime,T(i),ADiff);
-                if alpha>=0.5
-                    k=k+1;
-                end
-                % Within the horizon inclusive of boundry points
-                Bi = AData(:,:,id{:},k);
-            else
-                % Extrapolate to zeros if outside horizon
-                Bi = ZEROS;
-                WarningFlag = true;
-            end
-            BData(:,i) = Bi(:);
-        end
-        BData = reshape(BData,[size(Bi) Nt]);
-        
-    case 'Spline'
-        % Currently SplineData is empty and it computed in every call
-        % to EVALT. A syntax to precompute Spline Data is:
-        %    A = getSplineData(A);
-        % This allows for more efficient, repeated calls to EVALT.
-        ASplineData = A.SplineData;
-        if isempty(ASplineData)
-            ASplineData = getSplineData(AData,ATime);
-        end
-        
-        for i=1:Nt
-            if T(i)<ATime(1) || T(i)>ATime(end)
-                % Extrapolate to zeros if outside horizon
-                Bi = ZEROS;
-                WarningFlag = true;
-            else
-                if T(i)<=ATime(1)
-                    k=1;
-                    dt = 0;
-                elseif T(i)>=ATime(end)
-                    k=numel(ATime)-1;
-                    dt = ATime(end)-ATime(end-1);
+            BData = reshape(BData,[size(Bi) Nt]);
+            
+        case 'Nearest'
+            for i=1:Nt
+                if T(i)<=ATime(end) && T(i)>=ATime(1)
+                    [k,alpha] = LOCALfindslotalpha(NATime,ATime,T(i),ADiff);
+                    if alpha>=0.5
+                        k=k+1;
+                    end
+                    % Within the horizon inclusive of boundry points
+                    Bi = AData(:,:,id{:},k);
                 else
-                    k = find( T(i)>=ATime(1:end-1) & T(i)<ATime(2:end) );
-                    k = k(1);
-                    dt = T(i)-ATime(k);
+                    % Extrapolate to zeros if outside horizon
+                    Bi = ZEROS;
+                    WarningFlag = true;
                 end
-                aidx = 4*(k-1)+(1:4);
-                if dt==0
-                    Bi = ASplineData(aidx(1),:);
-                else
-                    Bi = [1 dt dt^2 dt^3]*ASplineData(aidx,:);
-                end
+                BData(:,i) = Bi(:);
             end
-            BData(:,i) = Bi(:);
+            BData = reshape(BData,[size(Bi) Nt]);
+            
+        case 'Spline'
+            % Currently SplineData is empty and it computed in every call
+            % to EVALT. A syntax to precompute Spline Data is:
+            %    A = getSplineData(A);
+            % This allows for more efficient, repeated calls to EVALT.
+            ASplineData = A.SplineData;
+            if isempty(ASplineData)
+                ASplineData = getSplineData(AData,ATime);
+            end
+            
+            for i=1:Nt
+                if T(i)<ATime(1) || T(i)>ATime(end)
+                    % Extrapolate to zeros if outside horizon
+                    Bi = ZEROS;
+                    WarningFlag = true;
+                else
+                    if T(i)<=ATime(1)
+                        k=1;
+                        dt = 0;
+                    elseif T(i)>=ATime(end)
+                        k=numel(ATime)-1;
+                        dt = ATime(end)-ATime(end-1);
+                    else
+                        k = find( T(i)>=ATime(1:end-1) & T(i)<ATime(2:end) );
+                        k = k(1);
+                        dt = T(i)-ATime(k);
+                    end
+                    aidx = 4*(k-1)+(1:4);
+                    if dt==0
+                        Bi = ASplineData(aidx(1),:);
+                    else
+                        Bi = [1 dt dt^2 dt^3]*ASplineData(aidx,:);
+                    end
+                end
+                BData(:,i) = Bi(:);
+            end
+            BData = reshape(BData,[size(AData(:,:,id{:},1)) Nt]);
+    end
+else
+    %% Discrete Time-Varying Case
+    % Return the sampled data
+    for i = 1:Nt
+        if T(i)<=ATime(end) && T(i)>=ATime(1)
+            % Within the horizon inclusive of boundry points
+            [flag,idx] = ismembertol(T(i),ATime,sqrt(eps));
+            if flag
+                Bi = AData(:,:,id{:},idx);
+            else
+                error('Discrete-Time TVMAT can not be interpolated.');
+            end
+        else
+            % Extrapolate to zeros if outside horizon
+            Bi = ZEROS;
+            WarningFlag = true;
         end
-        BData = reshape(BData,[size(AData(:,:,id{:},1)) Nt]);
+        BData(:,i) = Bi(:);
+    end
 end
 
 %% Convert output to a TVMAT if tvflag specified
 if tvflag
-    B = tvmat(BData,T,AIM);
+    B = tvmat(BData,T,Arg3);
 else
     B = BData;
 end

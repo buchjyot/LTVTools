@@ -43,6 +43,7 @@ if isTimeInvariant
 else
     Time = varargin{1}.Time;
     IM = varargin{1}.InterpolationMethod;
+    Ts = varargin{1}.Ts;
     Nt = numel(Time);
     vinI = cell(1,nin);
     voutI = cell(1,nout);
@@ -68,10 +69,15 @@ else
     end
     
     % Reshape outputs
+    if isequal(Ts,0)
+        Arg3 = IM;        
+    else
+        Arg3 = Ts;
+    end    
     for k=1:nout
         CData = reshape(voutALL{k},[size(voutI{k}) Nt]);
-        if isa(CData,'double') || isa(CData,'logical')
-            varargout{k} = tvmat(CData,Time,IM);
+        if isa(CData,'double') || isa(CData,'logical')                            
+            varargout{k} = tvmat(CData,Time,Arg3);            
         elseif isa(CData,'ss') || isa(CData,'tf') || isa(CData,'zpk')
             varargout{k} = tvss(CData,Time,IM);
         elseif isa(CData,'umat')

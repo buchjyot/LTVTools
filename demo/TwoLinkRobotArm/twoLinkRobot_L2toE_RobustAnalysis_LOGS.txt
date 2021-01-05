@@ -1,0 +1,140 @@
+load('twoLinkRobot_L2toE_RobustAnalysis1.mat')
+Starting parallel pool (parpool) using the 'local' profile ...
+connected to 4 workers.
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.072, wcg1:0.076
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.117, wcg1:0.108
+ wcg0:0.115, wcg1:0.104
+ wcg0:0.115, wcg1:0.108
+ wcg0:0.078, wcg1:0.079
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.066, wcg1:0.072
+ wcg0:0.117, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.115, wcg1:0.108
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.114, wcg1:0.103
+ wcg0:0.098, wcg1:0.092
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.117, wcg1:0.105
+ wcg0:0.070, wcg1:0.075
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.066, wcg1:0.073
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.117, wcg1:0.108
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.092, wcg1:0.089
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.113, wcg1:0.101
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.115, wcg1:0.108
+ wcg0:0.102, wcg1:0.094
+ wcg0:0.115, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.117, wcg1:0.108
+ wcg0:0.116, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.116, wcg1:0.108
+ wcg0:0.094, wcg1:0.090
+ wcg0:0.116, wcg1:0.108
+ wcg0:0.117, wcg1:0.107
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.117, wcg1:0.106
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.069, wcg1:0.075
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.117, wcg1:0.107
+ wcg0:0.117, wcg1:0.108
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.115, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.117, wcg1:0.107
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.066, wcg1:0.072
+ wcg0:0.066, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.116, wcg1:0.108
+ wcg0:0.117, wcg1:0.108
+ wcg0:0.116, wcg1:0.108
+ wcg0:0.117, wcg1:0.107
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.087, wcg1:0.085
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.066, wcg1:0.073
+ wcg0:0.115, wcg1:0.108
+ wcg0:0.117, wcg1:0.107
+ wcg0:0.082, wcg1:0.081
+ wcg0:0.069, wcg1:0.074
+ wcg0:0.115, wcg1:0.108
+ wcg0:0.101, wcg1:0.096
+ wcg0:0.071, wcg1:0.076
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.066, wcg1:0.072
+ wcg0:0.065, wcg1:0.072
+ wcg0:0.072, wcg1:0.076
+ wcg0:0.111, wcg1:0.106
+ wcg0:0.115, wcg1:0.104
+ wcg0:0.066, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.064, wcg1:0.072
+ wcg0:0.114, wcg1:0.108
+ wcg0:0.115, wcg1:0.108
+ Nominal Controller Closed Loop Worst-Case Gain: [0.1175,0.1197]
+ Worst-Case Delta:
+
+Deltawc0 =
+ 
+  -0.8 s + 22.86
+  --------------
+    s + 28.57
+ 
+Continuous-time transfer function.
+
+ Robust Controller Closed Loop Worst-Case Gain: [0.1076,0.1098]
+ Worst-Case Delta:
+
+Deltawc1 =
+ 
+  -0.8 s + 65.33
+  --------------
+    s + 81.66
+ 
+Continuous-time transfer function.
+
+IdleTimeout has been reached.
+Parallel pool using the 'local' profile is shutting down.
+XCLn
+XCLn = 
+
+ Continuous-time time-varying matrix with 2 rows and 1 columns.
+
+                   Data: [2󪻑76 double]
+                Horizon: [0 5]
+    InterpolationMethod: 'Linear'
+
+ Use the "get" method to see all the properties.
+

@@ -656,7 +656,7 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
         
         %% GetFooter
         function footer = getFooter(obj)             %#ok<MANU>
-            footer = ' Use "get" method to see all the properties.';
+            footer = ' Use the "get" method to see all the properties.';
             format = get(0,'FormatSpacing');
             switch format
                 case 'compact'

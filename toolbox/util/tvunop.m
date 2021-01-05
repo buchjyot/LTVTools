@@ -29,7 +29,7 @@ if A.isTimeInvariant
     end
 else
     szA = size(AData);
-    nad = numel(szA)-3;    
+    nad = numel(szA)-3;
     id = repmat({':'},1,nad);
     Nt = numel(A.Time);
     out = cell(Nt,nout);
@@ -39,13 +39,17 @@ else
     for k=1:nout
         tmp = cat( ndims(out{1,k})+1 ,out{:,k} );
         if isa(tmp,'double') || isa(tmp,'logical')
-            varargout{k} = tvmat(tmp,A.Time,A.InterpolationMethod);            
+            if isequal(A.Ts,0)
+                varargout{k} = tvmat(tmp,A.Time,A.InterpolationMethod);
+            else
+                varargout{k} = tvmat(tmp,A.Time,A.Ts);
+            end
         elseif isa(tmp,'ss') || isa(tmp,'tf') || isa(tmp,'zpk')
-            varargout{k} = tvss(tmp,A.Time,A.InterpolationMethod);  
+            varargout{k} = tvss(tmp,A.Time,A.InterpolationMethod);
         elseif isa(tmp,'umat')
-            varargout{k} = tvumat(tmp,A.Time,A.InterpolationMethod);    
+            varargout{k} = tvumat(tmp,A.Time,A.InterpolationMethod);
         elseif isa(tmp,'uss')
-            varargout{k} = tvuss(tmp,A.Time,A.InterpolationMethod);    
+            varargout{k} = tvuss(tmp,A.Time,A.InterpolationMethod);
         end
     end
 end

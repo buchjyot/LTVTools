@@ -37,5 +37,5 @@ return;
 figure(1);clf;
 tvplot(-dC,'LineWidth',2);
 legend('d_1(t)','d_2(t)','Location','northwest');grid on;box on;
-ylabel('Worst-case disturbances');
+ylabel('Worst-Case Disturbances');
 xlabel('Time (sec)')

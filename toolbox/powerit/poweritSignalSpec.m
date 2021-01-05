@@ -124,9 +124,9 @@ classdef (CaseInsensitiveProperties = true,TruncatedProperties = true) poweritSi
         
         %% Specify InitialInput
         function opt = set.InitialInput(opt,V)
-            V = ltipack.matchKey(V,{'randn','ones','rand'});
+            V = ltipack.matchKey(V,{'randn','randnc','ones','rand','randc'});
             if isempty(V)
-                error('The "InitialInput" option must be set to ''randn'', ''rand'' or ''ones''.')
+                error('The "InitialInput" option must be set to ''randn'',''randnc'',''ones'',''rand'' or ''randc''.')
             end
             opt.InitialInput = V;
         end

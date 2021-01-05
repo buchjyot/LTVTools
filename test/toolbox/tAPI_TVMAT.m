@@ -499,6 +499,7 @@ classdef tAPI_TVMAT < LTVTestBaseClass
             T = 0:5;
             NT = numel(T);
             AData = zeros(2,2,NT);
+            ATs = 0;
             for i=1:NT
                 AData(:,:,i) = [5+7*T(i)^2 -3; -4+T(i)+2*T(i)^3 4*T(i)^3];
             end

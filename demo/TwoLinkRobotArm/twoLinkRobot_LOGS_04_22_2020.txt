@@ -107,6 +107,113 @@ twoLinkRobot_RunMe
  ---------------------------------------------------------------------------------
  Final Results: WCGain: 0.1266, TotalIter: 7, MinIter: 7, TotalTime: 42468.9683
  ---------------------------------------------------------------------------------
+
+ ===> Iteration #1:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.4441 
+ ### IQC Analysis Step: 
+ Starting IQC upper bound iterations...
+ Iter# = 1:  DLMI Gain Bound = 0.3879, RDE Gain Bound = 0.3951, Adding t = 0.058, 2.027, 
+ Iter# = 2:  DLMI Gain Bound = 0.3800, RDE Gain Bound = 0.3826, Adding t = 0.034, 
+ Iter# = 3:  DLMI Gain Bound = 0.3803, RDE Gain Bound = 0.3814,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustPerfUB = 0.3814, TotalCompTime = 4284.3990
+ IQC Analysis Gain: = 0.3814 
+ Summary: Synthesis Gain = 0.4441, IQC Analysis Gain = 0.3814
+
+ ===> Iteration #2:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.4103 
+ ### IQC Analysis Step: 
+ Starting IQC upper bound iterations...
+ Iter# = 1:  DLMI Gain Bound = 0.5093, RDE Gain Bound = 0.3569,
+ Iter# = 2:  DLMI Gain Bound = 0.2138, RDE Gain Bound = 0.1687,
+ Iter# = 3:  DLMI Gain Bound = 0.1437, RDE Gain Bound = 0.1541, Adding t = 4.848, 
+ Iter# = 4:  DLMI Gain Bound = 0.1487, RDE Gain Bound = 0.1536, Adding t = 0.043, 2.063, 4.831, 4.865, 
+ Iter# = 5:  DLMI Gain Bound = 0.1536, RDE Gain Bound = 0.1536,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustPerfUB = 0.1536, TotalCompTime = 13724.6028
+ IQC Analysis Gain: = 0.1536 
+ Summary: Synthesis Gain = 0.4103, IQC Analysis Gain = 0.1536
+
+ ===> Iteration #3:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.7316 
+ ### IQC Analysis Step: 
+ Starting IQC upper bound iterations...
+ Iter# = 1:  DLMI Gain Bound = 0.5884, RDE Gain Bound = 0.3490,
+ Iter# = 2:  DLMI Gain Bound = 0.2463, RDE Gain Bound = 0.1765,
+ Iter# = 3:  DLMI Gain Bound = 0.1301, RDE Gain Bound = 0.1305,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustPerfUB = 0.1305, TotalCompTime = 6291.5216
+ IQC Analysis Gain: = 0.1305 
+ Summary: Synthesis Gain = 0.7316, IQC Analysis Gain = 0.1305
+
+ ===> Iteration #4:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.8562 
+ ### IQC Analysis Step: 
+ Starting IQC upper bound iterations...
+ Iter# = 1:  DLMI Gain Bound = 0.5315, RDE Gain Bound = 0.3151,
+ Iter# = 2:  DLMI Gain Bound = 0.2312, RDE Gain Bound = 0.1602,
+ Iter# = 3:  DLMI Gain Bound = 0.1260, RDE Gain Bound = 0.1143,
+ Iter# = 4:  DLMI Gain Bound = 0.1037, RDE Gain Bound = 0.1088, Adding t = 4.862, 
+ Iter# = 5:  DLMI Gain Bound = 0.1081, RDE Gain Bound = 0.1087,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustPerfUB = 0.1087, TotalCompTime = 10018.2589
+ IQC Analysis Gain: = 0.1087 
+ Summary: Synthesis Gain = 0.8562, IQC Analysis Gain = 0.1087
+
+ ===> Iteration #5:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.9761 
+ ### IQC Analysis Step: 
+ Starting IQC upper bound iterations...
+ Iter# = 1:  DLMI Gain Bound = 0.5348, RDE Gain Bound = 0.3242,
+ Iter# = 2:  DLMI Gain Bound = 0.2316, RDE Gain Bound = 0.1605,
+ Iter# = 3:  DLMI Gain Bound = 0.1176, RDE Gain Bound = 0.1070,
+ Iter# = 4:  DLMI Gain Bound = 0.1007, RDE Gain Bound = 0.1068, Adding t = 4.866, 
+ Iter# = 5:  DLMI Gain Bound = 0.1058, RDE Gain Bound = 0.1058,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustPerfUB = 0.1058, TotalCompTime = 10215.2224
+ IQC Analysis Gain: = 0.1058 
+ Summary: Synthesis Gain = 0.9761, IQC Analysis Gain = 0.1058
+
+ ===> Iteration #6:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.9957 
+ ### IQC Analysis Step: 
+ Starting IQC upper bound iterations...
+ Iter# = 1:  DLMI Gain Bound = 0.5522, RDE Gain Bound = 0.3188,
+ Iter# = 2:  DLMI Gain Bound = 0.2358, RDE Gain Bound = 0.1690,
+ Iter# = 3:  DLMI Gain Bound = 0.1302, RDE Gain Bound = 0.1179,
+ Iter# = 4:  DLMI Gain Bound = 0.1050, RDE Gain Bound = 0.1052,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustPerfUB = 0.1052, TotalCompTime = 7731.9248
+ IQC Analysis Gain: = 0.1052 
+ Summary: Synthesis Gain = 0.9957, IQC Analysis Gain = 0.1052
+
+ ===> Iteration #7:
+ ### Synthesis Step: 
+ Synthesis Gain = 0.9965 
+ ### IQC Analysis Step: 
+ Starting IQC upper bound iterations...
+ Iter# = 1:  DLMI Gain Bound = 0.5613, RDE Gain Bound = 0.3154,
+ Iter# = 2:  DLMI Gain Bound = 0.2356, RDE Gain Bound = 0.1709,
+ Iter# = 3:  DLMI Gain Bound = 0.1297, RDE Gain Bound = 0.1173,
+ Iter# = 4:  DLMI Gain Bound = 0.1034, RDE Gain Bound = 0.1052, Adding t = 4.870, 
+ Iter# = 5:  DLMI Gain Bound = 0.1045, RDE Gain Bound = 0.1051, Adding t = 0.080, 
+ Iter# = 6:  DLMI Gain Bound = 0.1042, RDE Gain Bound = 0.1049, Adding t = 4.864, 4.877, 
+ Iter# = 7:  DLMI Gain Bound = 0.1042, RDE Gain Bound = 0.1045,
+ Stopping tolerance satisfied: terminating analysis iterations.
+ Final Results: RobustPerfUB = 0.1045, TotalCompTime = 14076.7579
+ IQC Analysis Gain: = 0.1045 
+ Summary: Synthesis Gain = 0.9965, IQC Analysis Gain = 0.1045
+ Maximum number of iteration reached.
+ ---------------------------------------------------------------------------------
+ Final Results: WCGain: 0.1045, TotalIter: 7, MinIter: 7, TotalTime: 67103.6140
+ --------------------------------------------------------------------------------- 
+
  Closed Loop with Nominal Controller :
  L2toE Gain Lower Bound = 0.323
  LTV Simulation Terminal Euclidean Norm = 0.324

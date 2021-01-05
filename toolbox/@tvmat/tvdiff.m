@@ -23,6 +23,10 @@ if ~isequal(AIM,'Spline')
     error('TVDIFF requires Spline interpolation method');
 end
 
+if isdt(A)
+    error('Discrete-Time TVMAT can not be differentiated.')
+end
+
 %% Handle single input syntax with recursive call
 if nargin==1
     [A1,A2,A3] = tvdiff(A,A.Time);

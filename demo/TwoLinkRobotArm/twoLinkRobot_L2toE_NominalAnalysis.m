@@ -4,21 +4,21 @@
 load('twoLinkRobot_SpecifyOptions.mat');
 load('twoLinkRobot_Hinfsyn.mat');
 load('twoLinkRobot_HinfDesign.mat');
-load('twoLinkRobot_Robsyn.mat','Gunc','robinfo','Krob');
+load('twoLinkRobot_Robsyn.mat','Gunc','Krob1');
 
 %% Nominal Analysis - Nominal Controller vs Robust Controller
 
 % Form Closedloop
 CLn = lft(evalt(Gunc,Knom.Time),Knom);
-CLr = lft(evalt(Gunc,Krob.Time),Krob);
+CLr = lft(evalt(Gunc,Krob1.Time),Krob1);
 
 % Remove Design Weights
-CLn = blkdiag(eye(Nv),inv(Wu),inv(WE))*CLn*blkdiag(eye(Nw),inv(Wd),inv(Wn));
-CLr = blkdiag(eye(Nv),inv(Wu),inv(WE))*CLr*blkdiag(eye(Nw),inv(Wd),inv(Wn));
+% CLn = blkdiag(eye(Nv),inv(Wu),inv(WE))*CLn*blkdiag(eye(Nw),inv(Wd),inv(Wn));
+% CLr = blkdiag(eye(Nv),inv(Wu),inv(WE))*CLr*blkdiag(eye(Nw),inv(Wd),inv(Wn));
 
 % Consider d1,d2 to th1,th2
-CLnA = CLn(4:5,2:3);
-CLrA = CLr(4:5,2:3);
+CLnA = CLn(4:5,2:5);
+CLrA = CLr(4:5,2:5);
 
 % Compute worst-case disturbance
 [gCLn,dWcCLn] = tvnorm(CLnA,NE,tvnopt);

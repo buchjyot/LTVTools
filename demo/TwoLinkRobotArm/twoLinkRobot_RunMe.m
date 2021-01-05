@@ -51,7 +51,10 @@ for sequence = 8 % [4,5,6,7,8] % Reproduce results of [2]
             
         case 7
             % Perform Robust Analysis for different uncertainty level
-            twoLinkRobot_UncSweep
+            twoLinkRobot_UncSweep_UB
+            
+            % Perform uncertainty sampling to compute lower bound
+            twoLinkRobot_UncSweep_LB
             
         case 8
             % Plot results

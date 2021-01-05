@@ -15,6 +15,7 @@ alphaPatch = 0.15;
 % Colors
 DarkGreen = [0 0.3906 0];
 DarkRed = [0.5430 0 0];
+
 %% Plot Nominal Trajectory
 % Create figure
 figure;hold on;
@@ -64,14 +65,14 @@ load('twoLinkRobot_L2toE_NominalAnalysis.mat');
 figure;hold on;
 
 % Plot the patch of Nominal Controller performance upper bound
-rBall = dScl*gCLn(2);
+rBall = dScl*gCLn(1);
 th1Ball1 = cBall(1) + rBall*cos(aBall) + 2*pi;
 th2Ball1 = cBall(2) + rBall*sin(aBall);
 p1 = patch(th1Ball1,th2Ball1,'b');
 alpha(p1,alphaPatch);
 
 % Plot the patch of Robust Controller performance upper bound
-rBal2 = dScl*gCLr(2);
+rBal2 = dScl*gCLr(1);
 th1Ball2 = cBall(1) + rBal2*cos(aBall) + 2*pi;
 th2Ball2 = cBall(2) + rBal2*sin(aBall);
 p2 = patch(th1Ball2,th2Ball2,'r');
@@ -108,19 +109,19 @@ copyobj(ax1,f1);
 xlabel('\theta_1 (rads)','FontSize',14);
 ylabel('\theta_2 (rads)','FontSize',14);
 axis([0.2993    1.3978   -1.2404   -0.1877]);
-legend('$T_{0 (d\rightarrow e_E)}$',...
-    ['$T_{' num2str(0.8) '(d\rightarrow e_E)}$'],'interpreter','latex','orientation','horizontal','FontSize',14,...
+legend('$T_{0\,(d_{in}\rightarrow e_E)}$',...
+    ['$T_{' num2str(0.8) '\,(d_{in}\rightarrow e_E)}$'],'interpreter','latex','orientation','horizontal','FontSize',14,...
     'location','north')
 title(' ')
 
 % Plot worst-case disturbances
 f11 = figure;
-tvplot(-dWcCLn(1),'b',-dWcCLn(2),'b--','LineWidth',2.5);hold on;
-tvplot(-dWcCLr(1),'r',-dWcCLr(2),'r--','LineWidth',2.5);
+tvplot(-dWcCLn(1),'b',-dWcCLn(2),'b-.','LineWidth',2.5);hold on;
+tvplot(-dWcCLr(1),'r',-dWcCLr(2),'r-.','LineWidth',2.5);
 box on;grid on;
 xlabel('Time (sec)');
-ylabel('Worst-case disturbances');
-legend('$d_{1n}$','$d_{2n}$','$d_{1r}$','$d_{2r}$','Location','northwest','interpreter','latex','FontSize',14);
+ylabel('Worst-Case Disturbances');
+legend('$d_{1,0}$','$d_{2,0}$','$d_{1,0.8}$','$d_{2,0.8}$','Location','northwest','interpreter','latex','FontSize',14);
 
 %% Robust Synthesis
 
@@ -131,14 +132,14 @@ load('twoLinkRobot_L2toE_RobustAnalysis.mat');
 figure;hold on;
 
 % Plot the patch of Nominal Controller performance upper bound
-rBall = dScl*wcgUB1;
+rBall = dScl*wcgUB0;
 th1Ball1 = cBall(1) + rBall*cos(aBall) + 2*pi;
 th2Ball1 = cBall(2) + rBall*sin(aBall);
 p1 = patch(th1Ball1,th2Ball1,'b');
 alpha(p1,alphaPatch);
 
 % Plot the patch of Robust Controller performance upper bound
-rBal2 = dScl*wcgUB2;
+rBal2 = dScl*wcgUB1;
 th1Ball2 = cBall(1) + rBal2*cos(aBall) + 2*pi;
 th2Ball2 = cBall(2) + rBal2*sin(aBall);
 p2 = patch(th1Ball2,th2Ball2,'r');
@@ -176,35 +177,15 @@ xlabel('\theta_1 (rads)','FontSize',14);
 ylabel('\theta_2 (rads)','FontSize',14);
 title('')
 axis([0.1124    1.4967   -1.3561   -0.0295]);
-legend('$T_{0 (d\rightarrow e_E)}$',...
-    ['$T_{' num2str(0.8) '(d\rightarrow e_E)}$'],'interpreter','latex','orientation','horizontal','fontsize',14,...
+legend('$T_{0\,(d_{in}\rightarrow e_E)}$',...
+    ['$T_{' num2str(0.8) '\,(d_{in}\rightarrow e_E)}$'],'interpreter','latex','orientation','horizontal','fontsize',14,...
     'location','north')
 
 % Plot worst-case disturbances
 f22 = figure;
-tvplot(-dWc1s(1),'b',-dWc1s(2),'b--');hold on;
-tvplot(-dWc2s(1),'r',-dWc2s(2),'r--');
+tvplot(-dWc0s(1),'b',-dWc0s(2),'b-.','LineWidth',2.5);hold on;
+tvplot(-dWc1s(1),'r',-dWc1s(2),'r-.','LineWidth',2.5);
 box on;grid on;
 xlabel('Time (sec)');
-ylabel('Worst-case disturbances');
-legend('$d_{1n}$','$d_{2n}$','$d_{1r}$','$d_{2r}$','Location','northwest','interpreter','latex','FontSize',14);
-
-%% TwoStateEx_UncSweep
-load('twoLinkRobot_UncSweep.mat');
-figure;clf;grid on;box on;hold on;
-plot(UL,wcgain1,'-ob',UL,wcgain2,'-.rs','LineWidth',2);
-legend('$\tilde{T}_0$',['$\tilde{T}_{' num2str(DelNorm) '}$'],...
-    'interpreter','latex','location','northwest','fontsize',14);
-xlabel('Uncertainty Level (\beta)','FontSize',14);
-ylabel('Worst-Case Gain','FontSize',14);
-XL = xlim;
-YL = ylim;
-
-figure;clf;grid on;box on;hold on;
-plot(UL(1),wcgain1(1),'-ob',UL(9),wcgain2(9),'-.rs','LineWidth',2);
-legend('$\tilde{T}_0$',['$\tilde{T}_{' num2str(DelNorm) '}$'],...
-    'interpreter','latex','location','northwest','fontsize',14);
-xlabel('Uncertainty Level (\beta)','FontSize',14);
-ylabel('Worst-Case Gain','FontSize',14);
-xlim(XL);ylim(YL);
-clear;
+ylabel('Worst-Case Disturbances');
+legend('$d_{1,0}$','$d_{2,0}$','$d_{1,0.8}$','$d_{2,0.8}$','Location','northwest','interpreter','latex','FontSize',14);

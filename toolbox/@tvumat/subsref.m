@@ -3,7 +3,7 @@ function m = subsref(m,L)
 switch L(1).type
     case '.'
         L1s = L(1).subs;
-        if any(strcmpi(L1s,{'Data','Time','InterpolationMethod',...
+        if any(strcmpi(L1s,{'Data','Ts','Time','TimeUnit','InterpolationMethod',...
                 'isTimeInvariant','SplineData'}))
             m = m.(L1s);
         elseif any(strcmpi(L1s,{'A','B','C','D'}))

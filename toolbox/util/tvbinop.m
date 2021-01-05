@@ -28,6 +28,7 @@ else
     ATime = A.Time;
     Nt = numel(ATime);
     AIM = A.InterpolationMethod;
+    ATs = A.Ts;
     
     % Grab TVMAT Data
     AData = A.Data;
@@ -43,7 +44,11 @@ else
     end
     CData = cat( ndims(CData{1})+1, CData{:});
     if isa(CData,'double') || isa(CData,'logical')
-        C = tvmat(CData,ATime,AIM);
+        if isequal(ATs,0)
+            C = tvmat(CData,ATime,AIM);
+        else
+            C = tvmat(CData,ATime,ATs);
+        end
     elseif isa(CData,'ss') || isa(CData,'tf') || isa(CData,'zpk')
         C = tvss(CData,ATime,AIM);
     elseif isa(CData,'umat')

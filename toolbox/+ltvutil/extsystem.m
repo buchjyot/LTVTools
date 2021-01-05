@@ -31,20 +31,21 @@ Nz = size(Psi,1);
 
 %% Extract Euclidean part
 NY = size(G,1);
+[~,Tf] = getHorizon(G);
 idE = NY-NE+1:NY;
-[~,~,CE,DE] = ssdata(G(idE,:));
-[CTf,DTf] = tvsubs(CE,DE,G.Time(end));
+[Ag,Bg,Cg,Dg] = ssdata(G);
+[CTf,DTf] = tvsubs(Cg(idE,:),Dg(idE,:),Tf);
+
+% Removes Euclidean Part from output matrices
+Cg(idE,:) = [];
+Dg(idE,:) = [];
 
 % Verify there is no feedthrough from d->e for L2toE
 if any(any(DTf))
     error('Feedthrough term d->e must be zero for well-posed L2toE norm.');
 end
 
-% Removes Euclidean Part from model
-G.Data(idE,:) = [];
-
 %% Pull apart nominal system L2 parts
-[Ag,Bg,Cg,Dg] = ssdata(G);
 Nx = size(Ag,1);
 
 Bg1 = Bg(1:Nx,1:Nw);

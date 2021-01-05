@@ -33,7 +33,14 @@ switch L(1).type
                 % be set by getSplineData in LTVUtil. It is probably
                 % not good to make this publicly accessible.
                 m.SplineData = tmp;
-            elseif any(strcmpi(L1s,{'Ts','TimeUnit','Name'}))
+            elseif strcmpi(L1s,'Ts')
+                m.Ts = tmp;
+                if ~isequal(tmp,0)
+                    m.InterpolationMethod = [];
+                else
+                    m.InterpolationMethod = 'Linear';
+                end
+            elseif any(strcmpi(L1s,{'TimeUnit','Name'}))
                 m.(L1s) = tmp;
             else
                 error(['No property of the class "tvmat" matches the ' ...

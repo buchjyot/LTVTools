@@ -13,7 +13,11 @@ switch L(1).type
             if m.isTimeInvariant
                 m = tvmat( m.Data.(L1s) );
             else
-                m = tvmat(m.Data.(L1s),m.Time,m.InterpolationMethod);
+                if isct(m)
+                    m = tvmat(m.Data.(L1s),m.Time,m.InterpolationMethod);
+                else
+                    m = tvmat(m.Data.(L1s),m.Time,m.Ts);
+                end
             end
         else
             try

@@ -15,10 +15,12 @@ function [isTimeInvariant,varargout] = tvswitchyard(varargin)
 % Assume each input is either a tvss, tvmat, empty, double, or logical. 
 % Empty,  double, or logical are lifted to a Constant tvmat/tvss.
 nin = nargin;
-varargout = cell(nin,1);
-AllTime = cell(nin,1);
-AllIM = cell(nin,1);
-AllisTimeInvariant = false(nin,1);
+varargout           = cell(nin,1);
+AllTime             = cell(nin,1);
+AllIM               = cell(nin,1);
+AllisTimeInvariant  = false(nin,1);
+AllTs               = zeros(nin,1);
+AllTUnit            = cell(nin,1);
 for i=1:nin
     % Lift empty/double/logical to a TVMAT or TVSS. This will error out
     % if varargin{i} is an input of unexpected class.
@@ -36,6 +38,8 @@ for i=1:nin
     varargout{i} = vi;
     AllTime{i} = vi.Time;
     AllIM{i} = vi.InterpolationMethod;
+    AllTs(i) = vi.Ts;
+    AllTUnit{i} = vi.TimeUnit;
     if vi.isTimeInvariant
         AllisTimeInvariant(i) = true;
     end
@@ -66,6 +70,26 @@ if ~isTimeInvariant
     end
 end
 
+%% Check SampleTime
+if ~isTimeInvariant
+    Ts = AllTs( DTidx(1));
+    for i=2:numel(DTidx)
+        if ~isequal(Ts,AllTs(DTidx(i)))
+            error('Operations require a consistent SampleTime.');
+        end
+    end
+end
+
+%% Check TimeUnit
+if ~isTimeInvariant
+    TUnit = AllTUnit{ DTidx(1) };
+    for i=2:numel(DTidx)
+        if ~isequal(TUnit,AllTUnit{DTidx(i)} )
+            error('Operations require a consistent TimeUnit.');
+        end
+    end
+end
+
 %% Create output
 if ~isTimeInvariant
     for i=1:nin
@@ -75,7 +99,11 @@ if ~isTimeInvariant
             nd = ndims(Data)-2;
             Data2 = repmat(Data,[1 1 ones(1,nd) numel(Time)]);            
             if isa(Data,'double') || isa(Data,'logical')
-                varargout{i} = tvmat(Data2,Time,IM);
+                if isequal(Ts,0)
+                    varargout{i} = tvmat(Data2,Time,IM);
+                else
+                    varargout{i} = tvmat(Data2,Time,Ts);
+                end
             elseif isa(Data,'ss') || isa(Data,'tf') || isa(Data,'zpk')
                 varargout{i} = tvss(Data2,Time,IM);
             elseif isa(Data,'umat')

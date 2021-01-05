@@ -44,7 +44,7 @@ end
 if nargin>2
     cdleopt = varargin{1};
 else
-    cdleopt = [];
+    cdleopt = tvodeOptions;
 end
 
 % Extract ssdata from G

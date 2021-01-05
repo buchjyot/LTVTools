@@ -32,6 +32,7 @@ lam = zeros(MaxIter,1);
 
 % Random vector
 z(:,1) = rand(m,1);
+z(:,1) = z(:,1)/norm(z(:,1));
 
 %% Power Iterations
 t1 = tic;

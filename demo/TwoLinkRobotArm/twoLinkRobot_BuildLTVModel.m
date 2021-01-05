@@ -58,7 +58,7 @@ Tf = 5;
 % points.  The spline is then evaluated on a dense time grid.
 x2Data = [-0.5 -0.5 0 0.5 0.5];
 x2Time = Tf*[0 0.001 0.5 0.999 1];
-x2bar = tvmat(x2Data,x2Time,'Spline');
+x2bar = tvmat(x2Data,x2Time,0,'Spline');
 
 Tgrid = linspace(T0,Tf,400);
 x2bar = evalt(x2bar,Tgrid);

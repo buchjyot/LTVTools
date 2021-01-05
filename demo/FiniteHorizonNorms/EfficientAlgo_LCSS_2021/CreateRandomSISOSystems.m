@@ -1,5 +1,5 @@
 % We use the following state dimentions for this study.
-NxAll = [1 10:10:200];
+NxAll = [1 10:10:300];
 m = length(NxAll);
 nPlant = 5;
 

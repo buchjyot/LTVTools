@@ -42,6 +42,10 @@ B = tvmat(B);
 Q = tvmat(Q);
 InterpMethod = A.InterpolationMethod;
 
+if A.Ts || B.Ts || Q.Ts || R.Ts || S.Ts 
+    error('Input matrices must be Continuous-time TVMATs.');
+end
+
 %% Set Default Values
 Nx = size(A,1);
 if isempty(F)

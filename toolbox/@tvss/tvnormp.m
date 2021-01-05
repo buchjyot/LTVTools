@@ -27,11 +27,22 @@ end
 
 % Precompute Adjoint System
 [A,B,C,D] = ssdata(G);
+[T0,Tf] = getHorizon(G);
+GTs = G.Ts;
+GIM = G.InterpolationMethod;
+
+% Dimentions
 Nu = size(B,2);
 [NY,Nx] = size(C);
 NL2 = NY-NE;
-Ga = tvss(-A',-C(1:NL2,:)',B',D(1:NL2,:)');
-[T0,Tf] = getHorizon(G);
+
+if isequal(GTs,0)
+    % Contineous-Time Adjoint
+    Ga = tvss(-A',-C(1:NL2,:)',B',D(1:NL2,:)');
+else
+    % Discrete-Time Adjoint
+    Ga = tvss(A',C(1:NL2,:)',B',D(1:NL2,:)');
+end
 CTf = tvsubs(C(NL2+1:end,:),Tf);
 
 % Initial condition and input
@@ -39,7 +50,13 @@ if isempty(x0)
     x0 = zeros(Nx,1);
 end
 if isempty(U1)
-    U1 = tvmat(randn(Nu,1,20),linspace(T0,Tf,20));
+    if isequal(GTs,0)
+        U1 = tvmat(randn(Nu,1,20),linspace(T0,Tf,20),GIM);
+    else
+        Tgrid = T0:GTs:Tf;
+        Nt = length(Tgrid);
+        U1 = tvmat(randn(Nu,1,Nt),linspace(T0,Tf,Nt),GTs);
+    end
 end
 
 % Options

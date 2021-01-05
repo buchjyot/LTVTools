@@ -35,6 +35,12 @@ else
         end
     else
         I =  I^p;
-        n = trapz(I.Time, I.Data(:))^(1/p);
+        if isequal(I.Ts,0)
+            % Continuous-time TVMAT
+            n = trapz(I.Time, I.Data(:))^(1/p);
+        else
+            % Discrete-time TVMAT
+            n = sum(I.Data(:)*I.Ts)^(1/p);
+        end
     end
 end
