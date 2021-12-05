@@ -94,7 +94,7 @@ for i = 1:Nd
 end
 
 % Plot end markers
-for i = 1:Nd
+for i = 1:Nd  
     figure(f1);hold on;
     plot(theta1f(i),theta2f(i),'ko','MarkerFaceColor','w','MarkerSize',5);
     

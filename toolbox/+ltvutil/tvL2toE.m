@@ -39,5 +39,9 @@ end
 
 % Store info
 info.TotalTime = toc(t0);
-info.Wc = Wc;
+info.Wsc = Wc;
+info.Woc = M;
+if nout > 1
+    info.V1 = V1;
+end
 end

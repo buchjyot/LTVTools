@@ -1,4 +1,4 @@
-function [glb,wcInput,info] = wcsolver_xFminusx0_terminalconstraint(mySystem,tUser,U1,x0,pSpec,Opt,systemType)
+function [glb,wcInput,info] = wcsolver_yFminusy0_terminalconstraint(mySystem,tUser,U1,x0,pSpec,Opt,systemType)
 
 % Requested number of output arguments
 nout = nargout;

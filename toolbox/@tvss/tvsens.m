@@ -1,4 +1,4 @@
-function out = sens(G,yBar,pBar,Rho,Nt,Np)
+function out = tvsens(G,yBar,pBar,Rho,Nt,Np)
 %% SENS Performs first order sensitivity analysis
 %
 % Inputs:
@@ -62,12 +62,13 @@ YUpp = zeros(Ny,1,Nt);
 YLow = zeros(Ny,1,Nt);
 PLow = zeros(Np,1,Nt);
 PUpp = zeros(Np,1,Nt);
+tComp = zeros(Nt,1);
 
 % Optimization Options
 opts = optimoptions('linprog','Display','off');
 
 % Outer for loop
-for i = 1:Nt
+for i = 2:Nt
     %% Output at time t on the Tgrid
     Yt = tvsubs(yBar,Tgrid(i));
     delYt = cellfun(@(x) tvsubs(x,Tgrid(i)),delY);
@@ -84,14 +85,17 @@ for i = 1:Nt
     end
     du = optimvar('du',Np,'LowerBound',lb,'UpperBound',ub);
     
-    % Lower Bound
+    % Lower and Upper Bound Problems
     LBProb = optimproblem('Objective',Yt+delYt'*du,'ObjectiveSense','min');
-    [sol1,YLow(:,:,i),ef1,op1] = solve(LBProb,'options',opts); %#ok<ASGLU>
-    PLow(:,:,i) = sol1.du;
-    
-    % Upper Bound
     UBProb = optimproblem('Objective',Yt+delYt'*du,'ObjectiveSense','max');
+    
+    % Solve LP
+    t0 = tic;
+    [sol1,YLow(:,:,i),ef1,op1] = solve(LBProb,'options',opts); %#ok<ASGLU>
     [sol2,YUpp(:,:,i),ef2,op2] = solve(UBProb,'options',opts); %#ok<ASGLU>
+    tComp(i) = toc(t0);
+    
+    PLow(:,:,i) = sol1.du;
     PUpp(:,:,i) = sol2.du;
 end
 
@@ -101,4 +105,5 @@ out.PLow = tvmat(PLow,Tgrid);
 out.PUpp = tvmat(PUpp,Tgrid);
 out.YLow = tvmat(YLow,Tgrid);
 out.YUpp = tvmat(YUpp,Tgrid);
+out.tComp = tComp(2:Nt);
 end

@@ -593,6 +593,81 @@ classdef (InferiorClasses={?frd, ?ss,?tf,?zpk,?ureal,?ucomplex,?ucomplexm,...
             [varargout{1:max(nargout,1)}] = ltvutil.tvmerge(varargin{:});
         end
         
+        function H = tvplot(varargin)
+            % TVPLOT plots the tvmat with respect to the time
+            %
+            % TVPLOT(X) or TVPLOT(X,LineSpec) plots the X.Data versus X.Time with optional
+            % LineSpec
+            %
+            % TVPLOT(X,data) plots the X.Data versus second argument Data after ignoring
+            % the time provided in TVMAT
+            %
+            % TVPLOT(X,Y) or TVPLOT(X,Y,LineSpec) where X and Y are TVMAT, plots the X.Data
+            % vs Y.Data with optional LineSpec specified
+            %
+            % For constant matrices or infinite horizon matrices containing inf in
+            % their time interval will throw an error while plotting.
+            %
+            %
+            % Examples:
+            %   TGrid = 0:0.1:10;
+            %   AData = 5*sin(TGrid);
+            %   BData = 5*cos(TGrid);
+            %
+            %   A = tvmat(AData,TGrid);
+            %   B = tvmat(BData,TGrid);
+            %
+            %   % Plot A's Data vs A's Time
+            %   figure; grid on; hold on;
+            %   tvplot(A,'LineWidth',3);
+            %
+            %   % Plot A's Data vs B's Data
+            %   figure;grid on;hold on;
+            %   tvplot(A,B,'-r','LineWidth',3);
+            
+            if nargout>0
+                H = ltvutil.tvplotEngine(@plot,varargin{:});
+            else
+                ltvutil.tvplotEngine(@plot,varargin{:});
+            end
+        end
+        
+        function H = tvstem(varargin)
+            % TVSTEM plots the discrete-time tvmat with respect to the time
+            if nargout>0
+                H = ltvutil.tvplotEngine(@stem,varargin{:});
+            else
+                ltvutil.tvplotEngine(@stem,varargin{:});
+            end
+        end
+        
+        function H = tvsemilogy(varargin)
+            % Plots TVMAT on semilogy plot
+            if nargout>0
+                H = ltvutil.tvplotEngine(@semilogy,varargin{:});
+            else
+                ltvutil.tvplotEngine(@semilogy,varargin{:});
+            end
+        end
+        
+        function H = tvsemilogx(varargin)
+            % Plots TVMAT on semilogx plot
+            if nargout>0
+                H = ltvutil.tvplotEngine(@semilogx,varargin{:});
+            else
+                ltvutil.tvplotEngine(@semilogx,varargin{:});
+            end
+        end
+        
+        function H = tvloglog(varargin)
+            % Plots TVMAT on semilogx plot
+            if nargout>0
+                H = ltvutil.tvplotEngine(@loglog,varargin{:});
+            else
+                ltvutil.tvplotEngine(@loglog,varargin{:});
+            end
+        end
+        
         %% Unary Operations: Element-by-Element
         function out = abs(obj)
             out = tvunopebe(@abs,obj);

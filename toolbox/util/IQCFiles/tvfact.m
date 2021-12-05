@@ -1,5 +1,5 @@
-function G = tvspectralfact(varargin)
-% TVSPECTRALFACT  Spectral factorization of linear systems on finite horizons.
+function G = tvfact(varargin)
+% TVFACT  Spectral factorization of linear systems on finite horizons.
 
 %   G = SPECTRALFACT(F,R) handles the case when H is specified in
 %   factored form as H = F' * R * F. The spectral factorization is then

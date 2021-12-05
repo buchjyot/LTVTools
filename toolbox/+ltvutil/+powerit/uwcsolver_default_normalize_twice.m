@@ -1,4 +1,4 @@
-function [glb,wcInput,info] = uwcsolver_default(mySystem,tUser,U1,x0,pSpec,Opt,systemType)
+function [glb,wcInput,info] = uwcsolver_default_normalize_twice(mySystem,tUser,U1,x0,pSpec,Opt,systemType)
 %% UWCSOLVER Routine
 %
 % This function assumes that uncertainty is wrapped on the top of the plant

@@ -261,7 +261,7 @@ if DYNAMIC_IQC
     [~,~,Psiv] = ltvutil.iqcEngine(Delta);
     if FH_SPECTRAL_FACT
         % Finite Horizon
-        out = tvspectralfact(Psiv,X11,Tspan);
+        out = tvfact(Psiv,X11,Tspan);
     else
         % Infinite Horizon
         [Dv,S] = spectralfact(Psiv,X11);

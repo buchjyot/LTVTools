@@ -176,7 +176,7 @@ if isempty(V3)
         zeroIC = isinf(diag(E0));
         E0 = E0(~zeroIC,~zeroIC);
         x0 = randn(size(E0,1),1);
-        x0 = x0/(x0'*E0*x0);
+        x0 = x0/sqrt(x0'*E0*x0);
     end
 else
     x0 = V3{1};

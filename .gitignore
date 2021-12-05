@@ -1,0 +1,18 @@
+################################
+# Ignore following files in git
+################################
+
+# Protected Code (P-Code) Files
+*.p 
+
+# AutoSave Files
+*.autosave
+*.asv
+*.m~
+
+# Simulink Cache Files
+*.slxc
+
+# Large files that can not be pushed to GitHub
+/demo/TwoLinkRobotArm/twoLinkRobot_RobustAnalysis.mat
+/demo/TwoLinkRobotArm/twoLinkRobot_Robsyn.mat

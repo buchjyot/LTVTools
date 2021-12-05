@@ -1,3 +1,6 @@
+%% Clear
+clear,clc,close all;
+
 %% PLOT LQR and OpFb Robust Gains
 % This file plots the robust L2-to-Euclidean gains for LQR and Output
 % feedback interconnections. First, control design with LQR, OpFb(Tau =
@@ -11,9 +14,10 @@
 load('RobustL2toEGains_LQR_OpFb.mat')
 
 % Define Colors
+allc = jet(10);
 color1 = 'r';
-color2 = 'g';
-color3 = 'b';
+color2 = allc(9,:);
+color3 = [0 0.5 0];
 color4 = 'c';
 
 % Disturbances are scaled to have norm ||d|| = dL2norm
@@ -42,8 +46,8 @@ set(gca,'YLim',[0 0.4]);
 
 % Annotations
 xlabel('Uncertainty Level (\beta)','FontSize',14);
-ylabel('Worst Case Gain (\gamma_{wc})','FontSize',14)
-title(sprintf('Worst-Case Robust Gain Plot'))
+ylabel('Worst Case Gain Upper Bound','FontSize',14)
+%title(sprintf('Worst-Case Robust L_2-to-Euclidean Gain Plot'))
 legend([p1 p2 p3 p4],'\tau = 0.1','\tau = 0.05',...
     '\tau = 0.02','LQR','FontSize',14);
 box on;grid on;
@@ -89,12 +93,12 @@ th2Ball1 = cBall(2) + rBall*sin(aBall);
 figure;clf;
 patch(th1Ball1,th2Ball1,color4);
 hold on;
-plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'ko',...
-    etaf(1)+2*pi, etaf(2),'kx','LineWidth',2,'MarkerSize',6);
+plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'k',...
+    etaf(1)+2*pi, etaf(2),'ko','LineWidth',2,'MarkerFaceColor','k');
 axis equal;
 xlabel('\theta_1 (rads)','FontSize',14);
 ylabel('\theta_2 (rads)','FontSize',14);
-title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
+% title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
 hold off;box on;grid on;
 set(gca,'xlim',[-0.0612    5.0826]);
 set(gca,'ylim',[-3.5532    0.5038]);
@@ -111,12 +115,12 @@ th2Ball2 = cBall(2) + rBall*sin(aBall);
 figure;clf;
 patch(th1Ball2,th2Ball2,color3);
 hold on;patch(th1Ball1,th2Ball1,color4);
-plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'ko',...
-    etaf(1)+2*pi, etaf(2),'kx','LineWidth',2,'MarkerSize',6);
+plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'k',...
+    etaf(1)+2*pi, etaf(2),'ko','LineWidth',2,'MarkerFaceColor','k');
 axis equal;
 xlabel('\theta_1 (rads)','FontSize',14);
 ylabel('\theta_2 (rads)','FontSize',14);
-title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
+% title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
 hold off;box on;grid on;
 set(gca,'xlim',[-0.0612    5.0826]);
 set(gca,'ylim',[-3.5532    0.5038]);
@@ -133,12 +137,12 @@ th2Ball3 = cBall(2) + rBall*sin(aBall);
 figure;clf;
 patch(th1Ball3,th2Ball3,color2);
 hold on;patch(th1Ball1,th2Ball1,color4);
-plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'ko',...
-    etaf(1)+2*pi, etaf(2),'kx','LineWidth',2,'MarkerSize',6);
+plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'k',...
+    etaf(1)+2*pi, etaf(2),'ko','LineWidth',2,'MarkerFaceColor','k');
 axis equal;
 xlabel('\theta_1 (rads)','FontSize',14);
 ylabel('\theta_2 (rads)','FontSize',14);
-title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
+% title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
 hold off;box on;grid on
 set(gca,'xlim',[-0.0612    5.0826]);
 set(gca,'ylim',[-3.5532    0.5038]);
@@ -155,11 +159,11 @@ th2Ball4 = cBall(2) + rBall*sin(aBall);
 figure;clf;
 patch(th1Ball4,th2Ball4,color1);
 hold on;patch(th1Ball1,th2Ball1,color4);
-plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'ko',...
-    etaf(1)+2*pi, etaf(2),'kx','LineWidth',2,'MarkerSize',6);axis equal;
+plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'k',...
+    etaf(1)+2*pi, etaf(2),'ko','LineWidth',2,'MarkerFaceColor','k');axis equal;
 xlabel('\theta_1 (rads)','FontSize',14);
 ylabel('\theta_2 (rads)','FontSize',14);
-title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
+% title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
 hold off;box on;grid on;
 set(gca,'xlim',[-0.0612    5.0826]);
 set(gca,'ylim',[-3.5532    0.5038]);
@@ -178,11 +182,11 @@ patch(th1Ball4,th2Ball4,color1);
 hold on;patch(th1Ball3,th2Ball3,color2);
 patch(th1Ball2,th2Ball2,color3);
 patch(th1Ball1,th2Ball1,color4);
-plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'ko',...
-    etaf(1)+2*pi, etaf(2),'kx','LineWidth',2,'MarkerSize',6);axis equal;
+plot(etabar(1)+2*pi,etabar(2),'k',eta0(1)+2*pi, eta0(2),'k',...
+    etaf(1)+2*pi, etaf(2),'ko','LineWidth',2,'MarkerFaceColor','k');axis equal;
 xlabel('\theta_1 (rads)','FontSize',14);
 ylabel('\theta_2 (rads)','FontSize',14);
-title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
+% title(['Closed-Loop with ||d|| <= ' num2str(dL2norm)]);
 hold off;box on;grid on;
 set(gca,'xlim',[-0.0612    5.0826]);
 set(gca,'ylim',[-3.5532    0.5038]);
@@ -193,17 +197,17 @@ alpha(alphaSetting);
 figure;clf;
 tau = 0.1;
 [mag,~,wout] = bode(tf([1 0],[tau 1]),{1,1e4});
-semilogx(wout,db(mag(:)),color1,'LineWidth',2)
+semilogx(wout,db(mag(:)),'Color',color1,'LineWidth',2)
 
 hold on;
 tau = 0.05;
 [mag,~,wout] = bode(tf([1 0],[tau 1]),{1,1e4});
-semilogx(wout,db(mag(:)),color2,'LineWidth',2)
+semilogx(wout,db(mag(:)),'Color',color2,'LineWidth',2)
 
 hold on;
 tau = 0.02;
 [mag,~,wout] = bode(tf([1 0],[tau 1]),{1,1e4});
-semilogx(wout,db(mag(:)),color3,'LineWidth',2)
+semilogx(wout,db(mag(:)),'Color',color3,'LineWidth',2)
 
 hold on;
 tau = 0;

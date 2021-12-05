@@ -60,9 +60,9 @@ Dt = LOCALevalTVMAT(D,T,tvflag);
 
 % Package up result
 if tvflag
-    P = tvss(At,Bt,Ct,Dt,G.Ts);
+    P = tvss(At,Bt,Ct,Dt,G.Ts,'TimeUnit',G.TimeUnit,'StateName',G.StateName,'InputName',G.InputName,'OutputName',G.OutputName);
 else
-    P = ss(At,Bt,Ct,Dt,G.Ts);
+    P = ss(At,Bt,Ct,Dt,G.Ts,'TimeUnit',G.TimeUnit,'StateName',G.StateName,'InputName',G.InputName,'OutputName',G.OutputName);
 end
 end
 

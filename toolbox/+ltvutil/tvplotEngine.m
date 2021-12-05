@@ -1,13 +1,14 @@
-function H = tvstem(varargin)
-% TVSTEM plots the discrete-time tvmat with respect to the time
+function H = tvplotEngine(plotfh,varargin)
+%% TVPLOTENGINE
+% 
+% This function plots the time-varying matrix data as per the function
+% handle specified
 %
-%
-% XXX: This is similar to the function tvplot, but instead uses discrete-
-% time tvmat
+% Function handle can be @plot, @stem, @semilogy, @semilogx, @loglog
 
 %% Input Processing
 % Replace each TVMAT input by its (reshaped) data
-nin = nargin;
+nin = nargin-1;
 IgnoreTime = false;
 
 % Convert to strings to chars as strcmp does not work on cell arrays that
@@ -99,11 +100,11 @@ elseif ~isempty(DATA_TVMAT_SEQ)
     end
 end
 
-% Send argIN to plot command
+% Send argIN to plot function handle
 if nargout>0
-    H = stem(argIN{:});
+    H = plotfh(argIN{:});
 else
-    stem(argIN{:});
+    plotfh(argIN{:});
 end
 
 % If IgnoreTime = false then xlabel as Time in TimeUnits

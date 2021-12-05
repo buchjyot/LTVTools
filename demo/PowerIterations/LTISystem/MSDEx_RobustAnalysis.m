@@ -12,7 +12,7 @@ P = ss(P.A,P.B,eye(Nx),0);
 
 %% Horizon
 T0   = 0;
-Tall = 3;%[0.1,1,2,3,4,5,7,10,20,50,70];
+Tall = [0.1,1,2,3,4,5,7,10,20,50,70];
 NT   = length(Tall);
 
 %% Analysis Interconnection
@@ -72,7 +72,7 @@ if isequal(NE,0)
 end
 
 %% Worst-Case Gain Upper Bounds
-ComputeWcGainUpperBounds = false;
+ComputeWcGainUpperBounds = true;
 if ComputeWcGainUpperBounds
     wcgUB = zeros(NT,1);
     wcInfo = cell(NT,1);
@@ -105,7 +105,7 @@ if length(Tall) > 1
     plot(Tall,wcgLB,'-^b',Tall,wcgUB,'-.vr','LineWidth',2);
     grid on;box on;
     xlabel('Horizon (T) (sec.)');
-    ylabel('Worst-case Gain');
+    ylabel('Worst-Case Induced L_2 Gain');
     legend('Power Iteration Lower Bound','IQC Upper Bound','Location','southeast');
     xlim([0 25]);
 end
